@@ -3,3 +3,4 @@ venv
 .env
 app/__pycache__
 instance/__pycache__
+tests/__pycache__
