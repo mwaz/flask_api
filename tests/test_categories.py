@@ -31,9 +31,17 @@ class CategoriesTestCase(unittest.TestCase):
         self.assertEqual(get_categories.status_code, 200)
         self.assertIn(new_category, str(get_categories.data))
 
+    def test_api_can_get_category_by_id(self):
+        """test to check if one can get the recipe category using provided ID"""
+        get_category_by_id = self.client.post('/categories/', data = self.categories)
+        self.assertEqual(get_category_by_id.status_code, 201)
+        get_result_in_json = json.loads(get_category_by_id.data.decode('utf-8').replace("'", "\""))
+        result = self.client().get(
+            '/categories/{}'.format(get_result_in_json['id']))
+        self.assertEqual(result.status_code, 200)
+        self.assertIn('new_category', str(result.data))
+
     
-
-
 
 
 
