@@ -17,7 +17,15 @@ class CategoriesTestCase(unittest.TestCase):
             # create all tables
             db.create_all()
 
-   
+    def test_create_categories(self):
+        """Test if the API can create a recipe category using [post]"""
+        create_categories = self.client.post('/categories/', data = self.categories)
+        self.assertEqual(create_categories.status_code, 201)
+        self.assertIn('new_category', str(create_categories.data))
+
+    
+
+
 
 
 
