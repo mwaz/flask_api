@@ -51,7 +51,20 @@ class CategoriesTestCase(unittest.TestCase):
         results = self.client().get('/categories/1')
         self.assertIn('newly_edited', str(results.data))
 
-    
+    def test_categories_deletion(self):
+        """test API can delete a recipe category"""
+        create_category = self.client().post('/categories/', data={'category_name': 'new_category_name'})
+        self.assertEqual(create_category.status_code, 201)
+
+        delete_result = self.client().delete('/categories/1')
+        self.assertEqual(delete_result.status_code, 200)
+
+        # Test to see if the deleted category still exists, if not a 404 should be returned
+        result_if_category_exists = self.client().get('/categories/1')
+        self.assertEqual(result_if_category_exists.status_code, 404)
+
+   
+
 
 
 
