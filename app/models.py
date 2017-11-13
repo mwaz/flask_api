@@ -1,6 +1,7 @@
 from app import db
 from flask_bcrypt import Bcrypt
 
+
 class User(db.Model):
     """The class defines the users table"""
 
@@ -8,35 +9,32 @@ class User(db.Model):
 
     """
     Table columns:
-    id - defines the unique key to identify a user in the users table
+    id - defines the unique key to identify a particular user in the users table
     email - defines email field of a user
     password - defines the password belonging to a user 
     """
-    id = db.Column(db.Integer, primary_key=True) 
-    #primary key of users table
+    id = db.Column(db.Integer, primary_key=True)
 
-    email = db.Column(db.String(256), nullable=False, unique=True) 
-    #email cannot be null
+    email = db.Column(db.String(256), nullable=False, unique=True)
 
-    password = db.Column(db.String(256), nullable=False) 
-    #password cannot be null
+    password = db.Column(db.String(256), nullable=False)
 
+    # Delete all the categories that belong to a user if the owner is deleted from the db
     categories = db.relationship(
         'Categories', order_by='Categories.id', cascade="all, delete-orphan")
-    # Delete all the categories that belong to a user if the owner is deleted from the db
+
+    # Delete all the recipes that belong to a user if the owner is deleted from the db
     recipe = db.relationship(
         'Recipes', order_by='Recipes.id', cascade="all, delete-orphan")
-    # Delete all the recipes that belong to a user if the owner is deleted from the db
-   
- 
+
     def __init__(self, email, password):
         """
         constructor method to initialize class 
         variables, username and email
         """
         self.email = email
-        #generates password hash using 'BYCRYPT'
-        self.password = Bcrypt().generate_password_hash(password).decode() 
+        # generates password hash using 'BYCRYPT'
+        self.password = Bcrypt().generate_password_hash(password).decode()
 
     def password_check(self, password):
         """
@@ -50,7 +48,7 @@ class User(db.Model):
         The method saves a user to the database if all 
         conditions are met
         """
-        db.session.add(self) 
+        db.session.add(self)
         db.session.commit()
 
 
@@ -59,7 +57,7 @@ class Categories(db.Model):
 
     __tablename__ = 'categories'
 
-    id = db.Column(db.Integer, primary_key=True) #primary key
+    id = db.Column(db.Integer, primary_key=True)  # primary key
     category_name = db.Column(db.String(256), nullable=False)
 
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -100,12 +98,13 @@ class Categories(db.Model):
         """method simply tells Python how to print objects of the Category class"""
         return "<Categories: {}>".format(self.category_name)
 
+
 class Recipes(db.Model):
     """ Class to define the recipe categories table layout in the db """
 
     __tablename__ = 'recipes'
 
-    id = db.Column(db.Integer, primary_key=True) #primary key
+    id = db.Column(db.Integer, primary_key=True)  # primary key
     recipe_name = db.Column(db.String(256), nullable=False)
 
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
@@ -146,12 +145,3 @@ class Recipes(db.Model):
     def __repr__(self):
         """method simply tells Python how to print objects of the Category class"""
         return "<Recipes: {}>".format(self.recipe_name)
-
-
-
-
-
-
-
-
-
