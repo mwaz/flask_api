@@ -63,10 +63,12 @@ class CategoriesTestCase(unittest.TestCase):
         result_if_category_exists = self.client().get('/categories/1')
         self.assertEqual(result_if_category_exists.status_code, 404)
 
-   
-
-
-
+    def tearDown(self):
+        """teardown all initialized variables."""
+        with self.app.app_context():
+            # drop all tables
+            db.session.remove()
+            db.drop_all()
 
 
 
