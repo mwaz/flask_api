@@ -41,9 +41,17 @@ class CategoriesTestCase(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertIn('new_category', str(result.data))
 
+    def test_api_can_edit_a_recipe_category(self):
+        """test if API can edit a recipe category"""
+        create_category = self.client().post('/categories/', data={'category_name': 'new_category'})
+        self.assertEqual(create_category.status_code, 201)
+
+        edit_category = self.client().put('/categories/1', data={"category_name": "newly_edited_category"})
+        self.assertEqual(edit_category.status_code, 200)
+        results = self.client().get('/categories/1')
+        self.assertIn('newly_edited', str(results.data))
+
     
-
-
 
 
 
