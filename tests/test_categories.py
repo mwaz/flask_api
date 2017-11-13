@@ -23,7 +23,17 @@ class CategoriesTestCase(unittest.TestCase):
         self.assertEqual(create_categories.status_code, 201)
         self.assertIn('new_category', str(create_categories.data))
 
+    def test_api_can_get_all_recipe_categories(self):
+        """Test if the api can get all the recipe categories"""
+        get_categories = self.client.post('/categories/', data = self.categories)
+        self.assertEqual(get_categories.status_code, 201)
+        get_categories = self.client.post('/categories/')
+        self.assertEqual(get_categories.status_code, 200)
+        self.assertIn(new_category, str(get_categories.data))
+
     
+
+
 
 
 
