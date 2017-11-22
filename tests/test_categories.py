@@ -10,7 +10,7 @@ class CategoriesTestCase(unittest.TestCase):
         """Defines the initialization variables for the class"""
         self.app = make_app(config_name="testing")
         self.client = self.app.test_client
-        self.Categories = {'category_name' : 'new_category'}
+        self.categories = {'category_name' : 'new_category'}
 
         # binds the app to the current context
         with self.app.app_context():
@@ -18,22 +18,23 @@ class CategoriesTestCase(unittest.TestCase):
             db.create_all()
 
     def test_create_categories(self):
-        """Test if the API can create a recipe category using [post]"""
-        create_categories = self.client.post('/categories/', data = self.categories)
+        """Test if the API can create a recipe categ
+        ory using [post]"""
+        create_categories = self.client().post('/categories/', data = self.categories)
         self.assertEqual(create_categories.status_code, 201)
         self.assertIn('new_category', str(create_categories.data))
 
     def test_api_can_get_all_recipe_categories(self):
         """Test if the api can get all the recipe categories"""
-        get_categories = self.client.post('/categories/', data = self.categories)
+        get_categories = self.client().post('/categories/', data = self.categories)
         self.assertEqual(get_categories.status_code, 201)
-        get_categories = self.client.post('/categories/')
+        get_categories = self.client().post('/categories/')
         self.assertEqual(get_categories.status_code, 200)
-        self.assertIn(new_category, str(get_categories.data))
+        self.assertIn('new_category', str(get_categories.data))
 
     def test_api_can_get_category_by_id(self):
         """test to check if one can get the recipe category using provided ID"""
-        get_category_by_id = self.client.post('/categories/', data = self.categories)
+        get_category_by_id = self.client().post('/categories/', data = self.categories)
         self.assertEqual(get_category_by_id.status_code, 201)
         get_result_in_json = json.loads(get_category_by_id.data.decode('utf-8').replace("'", "\""))
         result = self.client().get(
