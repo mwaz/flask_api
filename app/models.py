@@ -43,7 +43,7 @@ class User(db.Model):
          """
         return Bcrypt().check_password_hash(self.password, password)
 
-    def save():
+    def save(self):
         """ 
         The method saves a user to the database if all 
         conditions are met
@@ -66,15 +66,15 @@ class Categories(db.Model):
         onupdate=db.func.current_timestamp())
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
 
-    def __init__(self, category_name, created_by):
+    def __init__(self, category_name):
         """
         Constructor to initialize the class variables, category
         name and the owner
         """
         self.category_name = category_name
-        self.created_by = created_by
+        #self.created_by = created_by
 
-    def save():
+    def save(self):
         """
         method to save a category name both on update and creation
         """
@@ -82,14 +82,14 @@ class Categories(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all_user_categories(userid):
+    def get_all_user_categories():
         """
         This method fetches all the recipe categories
         that belong to a user.
         """
-        return Categories.query.filter_by(created_by=userid)
+        return Categories.query.filter_by()
 
-    def delete_categories():
+    def delete_categories(self):
         """ This method deletes a recipe category belonging to a user """
         db.session.delete(self)
         db.session.commit()
@@ -122,7 +122,7 @@ class Recipes(db.Model):
         self.recipe_name = recipe_name
         self.created_by = created_by
 
-    def save():
+    def save(self):
         """
         method to save a category name both on update and creation
         """
@@ -137,7 +137,7 @@ class Recipes(db.Model):
         """
         return Recipes.query.filter_by(created_by=userid)
 
-    def delete_recipes():
+    def delete_recipes(self):
         """ This method deletes a recipe category belonging to a user """
         db.session.delete(self)
         db.session.commit()
