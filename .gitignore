@@ -1,11 +1,9 @@
 venv
 .idea
 .env
+__pycache__/
 app/__pycache__
 instance/__pycache__
 tests/__pycache__
-migrations/versions/__pycache__/a4bc163d0207_.cpython-36.pyc
-migrations/versions/__pycache__/cb245b665db1_.cpython-36.pyc
-migrations/versions/__pycache__/d07cb4ed76f5_.cpython-36.pyc
 .vscode/settings.json
-migrations/__pycache__/env.cpython-36.pyc
+
