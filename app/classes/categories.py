@@ -1,10 +1,7 @@
 from app.models import Categories
-from flask_api import FlaskAPI
 from flask import request, jsonify, abort
 from flask.views import MethodView
 
-# local import
-from instance.config import app_config
 
 
 class Category(MethodView):
