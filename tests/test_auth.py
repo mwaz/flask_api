@@ -23,3 +23,14 @@ class TestAuth(unittest.TestCase):
         result = json.loads(user_register.data.decode())
         self.assertEqual(result['message'], "Successfully registered")
         self.assertEqual(user_register.status_code, 201)
+
+    def test_double_registration(self):
+        user_register = self.client.post('/flask_api/v1/auth/register', data=self.user_details)
+        self.assertEqual(user_register.status_code, 201)
+        double_user_registration = self.client.post('/flask_api/v1/auth/register', data = self.user_details)
+        self.assertEqual(double_user_registration.status_code, 202)
+        result = json.loads(double_user_registration.data.decode())
+        self.assertEqual(result['message'], "User Exists, Login")
+
+
+
