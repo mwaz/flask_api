@@ -45,7 +45,7 @@ class TestAuth(unittest.TestCase):
         result = json.loads(user_login.data.decode())
         self.assertEqual(result['message'], 'Successful Login')
         self.assertEqual(user_login.status_code, 200)
-        self.assertTrue(result['granted_token'])
+        self.assertTrue(result['granted_access_token'])
 
     def test_unauthorized_login(self):
         """"Method to test unauthorized login"""
