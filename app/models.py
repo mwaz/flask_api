@@ -55,7 +55,7 @@ class User(db.Model):
 
     def user_token_generator(self, user_id):
         """" Method to generate a token for user identification """
-        app_secret = os.getenv('SECRET', 'uuuuuuuuuu678y78yt83t483')
+        app_secret = os.getenv('SECRET')
         try:
             # set up a payload with an expiration time
             token_payload = {
@@ -78,7 +78,7 @@ class User(db.Model):
     @staticmethod
     def decode_token(token):
         """Method to decode the provided token"""
-        app_secret = os.getenv('SECRET', 'uuuuuuuuuu678y78yt83t483')
+        app_secret = os.getenv('SECRET')
         try:
             payload = jwt.decode(token, app_secret)
             return payload['usr']
