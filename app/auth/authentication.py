@@ -22,10 +22,10 @@ class userRegister(MethodView):
                 return make_response(jsonify(response)), 201
             except Exception as e:
                 response = {'message': str(e)}
-                return make_response(jsonify(response)), 401
+                return make_response(jsonify(response)), 400
         else:
             response = {'message': "User Exists, Kindly Login"}
-            return make_response(jsonify(response)), 202
+            return make_response(jsonify(response)), 409
 
 class userLogin(MethodView):
     """"Class to login a user from the ...auth/login endpoint"""
@@ -50,7 +50,7 @@ class userLogin(MethodView):
                 return make_response(jsonify(response)), 401
         except Exception as e:
             response = {'message': str(e)}
-            return make_response(jsonify(response)), 500
+            return make_response(jsonify(response)), 400
 
 
 
