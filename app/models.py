@@ -1,7 +1,9 @@
 from app import db
 from flask_bcrypt import Bcrypt
-
-
+from datetime import datetime, timedelta
+import jwt
+import os
+from instance.config import Config
 class User(db.Model):
     """The class defines the users table"""
 
@@ -51,6 +53,39 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def user_token_generator(self, user_id):
+        """" Method to generate a token for user identification """
+        app_secret = os.getenv('SECRET')
+        try:
+            # set up a payload with an expiration time
+            token_payload = {
+                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'iat': datetime.utcnow(),
+                'usr': user_id
+            }
+            # byte string token created with the payload and the SECRET key
+            jwt_string = jwt.encode(
+                token_payload,
+                app_secret,
+                algorithm='HS256'
+            )
+            return jwt_string
+
+        except Exception as e:
+            return str(e)
+
+
+    @staticmethod
+    def decode_token(token):
+        """Method to decode the provided token"""
+        app_secret = os.getenv('SECRET')
+        try:
+            payload = jwt.decode(token, app_secret)
+            return payload['usr']
+        except jwt.ExpiredSignatureError:
+            return "Expired token. Please login to get a new token"
+        except jwt.InvalidTokenError:
+            return "Invalid token. Please register or login"
 
 class Categories(db.Model):
     """ Class to define the recipe categories table layout in the db """
@@ -66,13 +101,13 @@ class Categories(db.Model):
         onupdate=db.func.current_timestamp())
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
 
-    def __init__(self, category_name):
+    def __init__(self, category_name, created_by):
         """
         Constructor to initialize the class variables, category
         name and the owner
         """
         self.category_name = category_name
-        #self.created_by = created_by
+        self.created_by = created_by
 
     def save(self):
         """
@@ -106,6 +141,8 @@ class Recipes(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)  # primary key
     recipe_name = db.Column(db.String(256), nullable=False)
+    recipe_ingredients = db.Column(db.String(256), nullable=False)
+    recipe_methods = db.Column(db.String(256), nullable=False)
 
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
@@ -114,12 +151,14 @@ class Recipes(db.Model):
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
     category_name = db.Column(db.Integer, db.ForeignKey(Categories.id))
 
-    def __init__(self, recipe_name, created_by):
+    def __init__(self, recipe_name, recipe_ingredients,recipe_methods, created_by):
         """
         Constructor to initialize the class variables, category
         name and the owner
         """
         self.recipe_name = recipe_name
+        self.recipe_ingredients = recipe_ingredients
+        self.recipe_methods = recipe_methods
         self.created_by = created_by
 
     def save(self):
