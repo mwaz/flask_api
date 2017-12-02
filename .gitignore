@@ -6,4 +6,5 @@ app/__pycache__
 instance/__pycache__
 tests/__pycache__
 .vscode/settings.json
+migrations/
 
