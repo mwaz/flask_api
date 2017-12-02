@@ -20,6 +20,11 @@ def make_app(config_name):
     db.init_app(app)
 
     from app.classes.categories import category_view_post,category_manipulation
-    app.add_url_rule('/flask_api/v1/categories/', view_func=category_view_post)
-    app.add_url_rule('/flask_api/v1/categories/<int:id>', view_func=category_manipulation)
+    app.add_url_rule('/yummy_api/v1/categories/', view_func=category_view_post)
+    app.add_url_rule('/yummy_api/v1/categories/<int:id>', view_func=category_manipulation)
+
+    from app.auth.authentication import user_registration_view,user_login_view
+    app.add_url_rule('/yummy_api/v1/auth/register', view_func=user_registration_view, methods=['POST'])
+    app.add_url_rule('/yummy_api/v1/auth/login', view_func=user_login_view, methods=['POST'])
+
     return app
