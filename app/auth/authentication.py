@@ -55,7 +55,8 @@ class userLogin(MethodView):
 
 
 user_registration_view = userRegister.as_view('user_registration_view')
-user_login_view = userRegister.as_view('user_login_view')
+user_login_view = userLogin.as_view('user_login_view')
+
 
 
 
