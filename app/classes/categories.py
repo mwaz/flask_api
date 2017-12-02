@@ -19,11 +19,12 @@ class Category(MethodView):
             if not isinstance(user_id, str):
                 category_name = str(request.data.get('category_name', ''))
                 if category_name:
-                    category = Categories(category_name=category_name)
+                    category = Categories(category_name=category_name,created_by=user_id)
                     category.save()
                     response = jsonify({
                         'id': category.id,
                         'category_name': category.category_name,
+                        'created_by': category.created_by,
                         'date_created': category.date_created,
                         'date_modified': category.date_modified
                     })
@@ -75,6 +76,7 @@ class CategoriesManipulation(MethodView):
                 response = jsonify({
                     'id': category.id,
                     'category_name': category.category_name,
+                    'created_by': category.created_by,
                     'date_created': category.date_created,
                     'date_modified': category.date_modified
                 })
@@ -100,6 +102,7 @@ class CategoriesManipulation(MethodView):
                     response = jsonify({
                         'id': category.id,
                         'category_name': category.category_name,
+                        'created_by': category.created_by,
                         'date_created': category.date_created,
                         'date_modified': category.date_modified
                     })
