@@ -1,6 +1,6 @@
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
-from flask import requests, jsonify, abort
+
 
 # local import
 from instance.config import app_config
@@ -8,8 +8,10 @@ from instance.config import app_config
 # initialize sql-alchemy
 db = SQLAlchemy()
 
+
 def make_app(config_name):
     from app.models import Categories
+    from app.classes import categories
 
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config['testing'])
@@ -17,35 +19,12 @@ def make_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
-@app.route('/categories/', methods=[POST, GET])
-def categories():
-    if request.method == "POST":
-        category_name = str(request.data.get('category_name', ''))
-        if category_name:
-            category = Categories(category_name=category_name)
-            category.save()
-            response = jsonify({
-                'id': category.id,
-                'category_name': category.category_name,
-                'date_created': category.date_created,
-                'date_modified': category.date_modified
-            })
-            response.status_code = 201
-            return response
-        else:
-            #If not a POST, then its a GET which fetches either one or all categories
-            categories = Categories.get_all()
-            results = []
+    from app.classes.categories import category_view_post,category_manipulation
+    app.add_url_rule('/yummy_api/v1/categories/', view_func=category_view_post)
+    app.add_url_rule('/yummy_api/v1/categories/<int:id>', view_func=category_manipulation)
 
-            for category in categories:
-                category_object = {
-                'id': category.id,
-                'category_name': category.category_name,
-                'date_created': category.date_created,
-                'date_modified': category.date_modified
-                }
-                results.append(category_object)
-            response = jsonify(results)
-            response.status_code = 200
-            return response
+    from app.auth.authentication import user_registration_view,user_login_view
+    app.add_url_rule('/yummy_api/v1/auth/register', view_func=user_registration_view, methods=['POST'])
+    app.add_url_rule('/yummy_api/v1/auth/login', view_func=user_login_view, methods=['POST'])
+
     return app
