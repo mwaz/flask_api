@@ -163,12 +163,12 @@ class Recipes(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all_user_recipes(userid):
+    def get_all_user_recipes(category_id):
         """
         This method fetches all the recipe categories
         that belong to a user.
         """
-        return Recipes.query.filter_by(created_by=userid)
+        return Recipes.query.filter_by(category_id=category_id)
 
     def delete_recipes(self):
         """ This method deletes a recipe category belonging to a user """
