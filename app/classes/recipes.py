@@ -137,7 +137,25 @@ class recipes_manipulation(MethodView):
                     response = make_response(jsonify(response)), 201
                     return response
 
-   
+    def delete(self,  id, recipe_id):
+        """Method to delete a recipe in a category"""
+
+        authorization_header = request.headers.get('Authorization')
+        access_token = authorization_header.split(" ")[1]
+
+        if access_token:
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
+                recipe = Recipes.query.filter_by(category_id=id, id=recipe_id).first()
+                if not recipe:
+                    response = {'message': 'No recipe found'}
+                    response = make_response(jsonify(response)), 401
+                    return response
+                else:
+                    recipe.delete_recipes()
+                    response ={"message": "successfully deleted category".format(recipe.id)}
+                    response = make_response(jsonify(response)), 200
+                    return response
 
 recipe_post_get_view = Recipe.as_view('recipe_post_get_view')
 recipe_manipulation_view = recipes_manipulation.as_view('recipe_manipulation_view')
