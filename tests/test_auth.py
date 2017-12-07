@@ -33,7 +33,7 @@ class TestAuth(unittest.TestCase):
         """"Method to test a user who is already registered """
         user_register = self.client().post('/yummy_api/v1/auth/register', data=self.user_details)
         self.assertEqual(user_register.status_code, 201)
-        double_user_registration = self.client().post('/flask_api/v1/auth/register', data=self.user_details)
+        double_user_registration = self.client().post('/yummy_api/v1/auth/register', data=self.user_details)
         self.assertEqual(double_user_registration.status_code, 409)
 
 
@@ -43,14 +43,12 @@ class TestAuth(unittest.TestCase):
         self.assertEqual(user_register.status_code, 201)
 
         user_login = self.client().post('/yummy_api/v1/auth/login', data = self.user_details)
-        result = json.loads(user_login.data.decode())
-        self.assertEqual(result.status_code, 200)
+        self.assertEqual(user_login.status_code, 200)
 
     def test_unauthorized_login(self):
         """"Method to test unauthorized login"""
         unauthorized_login = self.client().post('/yummy_api/v1/auth/login', data=self.unathorized_user_details)
-        result = json.loads(unauthorized_login.data.decode())
-        self.assertEqual(result.status_code, 401)
+        self.assertEqual(unauthorized_login.status_code, 401)
 
 
 
