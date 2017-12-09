@@ -1,3 +1,6 @@
+[![Coverage Status](https://coveralls.io/repos/github/mwaz/flask_api/badge.svg?branch=ft-recipe-endpoints-auth-%23153337261)](https://coveralls.io/github/mwaz/flask_api?branch=ft-recipe-endpoints-auth-%23153337261)
+
+[![Build Status](https://travis-ci.org/mwaz/flask_api.svg?branch=ft-recipe-endpoints-auth-%23153337261)](https://travis-ci.org/mwaz/flask_api)
 # Yummy Recipes Application API
 Challenge 3: A Flask API that enables one to create a recipe category, add, delete and update a category
 API also allows one to create recipes, update delete them using API endpoints
