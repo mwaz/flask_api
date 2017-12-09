@@ -16,7 +16,7 @@ before_script:
   - psql -c 'create database flask_api;' -U postgres
 # Test Script
 script:
-  - pytest --cov=app/ tests/
+  - pytest tests/
 # Coveralls reporting
 after_success:
   - coveralls
