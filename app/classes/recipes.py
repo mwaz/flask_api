@@ -3,6 +3,7 @@ from app.models import Recipes, Categories
 from app.models import User
 from flask import request, jsonify, abort, make_response
 from flask.views import MethodView
+import re
 
 class Recipe(MethodView):
     """"Class to define get and post requests of recipes"""
@@ -11,6 +12,7 @@ class Recipe(MethodView):
     def post(self, id):
         authorization_header = request.headers.get('Authorization')
         access_token = authorization_header.split(" ")[1]
+        regex_pattern = "[a-zA-Z- .]+$"
 
         if access_token:
             user_id = User.decode_token(access_token)
@@ -18,16 +20,38 @@ class Recipe(MethodView):
             if not isinstance(user_id, str):
                 # category_id = Categories.query.filter_by(id=category_id).first()
                 # category_id = Recipes.query.filter_by(category_id=category_id).firs
-                print(category_id)
+
                 if category_id:
                     recipe_name = str(request.data.get('recipe_name', ''))
                     recipe_ingredients = request.data.get('recipe_ingredients', '')
                     recipe_methods = request.data.get('recipe_methods', '')
                     # category_id = request.data.get('category_id', '')
         
+                    if not recipe_name :
+                        response = {'message': 'Recipe name not provided'}
+                        return make_response(jsonify(response)), 400
+                    if not recipe_ingredients :
+                        response = {'message': 'Recipe ingredients not provided'}
+                        return make_response(jsonify(response)), 400
+                    if not recipe_methods :
+                        response = {'message': 'Recipe preparation methods not provided'}
+                        return make_response(jsonify(response)), 400
+
+                    if not re.search(regex_pattern, recipe_name):
+                        response = {'message': 'Recipe name is not valid'}
+                        return make_response(jsonify(response)), 400 
+
+
                     if recipe_name:
+                        recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
+                        recipe_name = None if recipe_name == " " else recipe_name.title()
                         recipe = Recipes(recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
                                          recipe_methods=recipe_methods, category_id=category_id)
+                        recipe_details = Recipes.query.filter_by(category_id=category_id,recipe_name=recipe_name).first()
+                
+                        if recipe_details:
+                            response = {'message': 'Recipe name exists'}
+                            return make_response(jsonify(response)), 400 
                         recipe.save()
                         response = {'id':recipe.id,
                                     'recipe_name': recipe.recipe_name,
@@ -109,19 +133,38 @@ class recipes_manipulation(MethodView):
 
         authorization_header = request.headers.get('Authorization')
         access_token = authorization_header.split(" ")[1]
+        regex_pattern = "[a-zA-Z- .]+$"
+        category_id = id
 
         if access_token:
             user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
-                recipe = Recipes.query.filter_by(category_id=id, id=recipe_id).first()
+                recipe = Recipes.query.filter_by(category_id=category_id, id=recipe_id).first()
+                recipe_name = str(request.data.get('recipe_name', ''))
+                recipe_ingredients = str(request.data.get('recipe_ingredients', ''))
+                recipe_methods = str(request.data.get('recipe_methods', ''))
+                   
+                if not recipe_name :
+                    response = {'message': 'Recipe name not provided'}
+                    return make_response(jsonify(response)), 400
+                if not recipe_ingredients :
+                    response = {'message': 'Recipe ingredients not provided'}
+                    return make_response(jsonify(response)), 400
+                if not recipe_methods :
+                    response = {'message': 'Recipe preparation methods not provided'}
+                    return make_response(jsonify(response)), 400
+
+                if not re.search(regex_pattern, recipe_name):
+                    response = {'message': 'Recipe name is not valid'}
+                    return make_response(jsonify(response)), 400 
+
                 if not recipe:
                     response = {'message': 'No recipe found'}
                     response = make_response(jsonify(response)), 401
                     return response
                 else:
-                    recipe_name = str(request.data.get('recipe_name', ''))
-                    recipe_ingredients = str(request.data.get('recipe_ingredients', ''))
-                    recipe_methods = str(request.data.get('recipe_methods', ''))
+                    recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
+                    recipe_name = None if recipe_name == " " else recipe_name.title()     
                     recipe.recipe_name = recipe_name
                     recipe.recipe_ingredients = recipe_ingredients
                     recipe.recipe_methods = recipe_methods
@@ -146,7 +189,7 @@ class recipes_manipulation(MethodView):
         if access_token:
             user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
-                recipe = Recipes.query.filter_by(category_id=id, id=recipe_id).first()
+                recipe = Recipes.query.filter_by(category_id=id,id=recipe_id).first()
                 if not recipe:
                     response = {'message': 'No recipe found'}
                     response = make_response(jsonify(response)), 401

@@ -90,15 +90,20 @@ class CategoriesManipulation(MethodView):
             user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
                 category = Categories.query.filter_by(id=id).first()
-                response = jsonify({
-                    'id': category.id,
-                    'category_name': category.category_name,
-                    'created_by': category.created_by,
-                    'date_created': category.date_created,
-                    'date_modified': category.date_modified
-                })
-                response.status_code = 200
-                return response
+                if category:
+                    response = jsonify({
+                        'id': category.id,
+                        'category_name': category.category_name,
+                        'created_by': category.created_by,
+                        'date_created': category.date_created,
+                        'date_modified': category.date_modified
+                    })
+                    response.status_code = 200
+                    return response
+                else:
+                    response = {'message': 'No Category Found'}
+                    return make_response(jsonify(response)), 404
+                
             response = {'message': 'User not authenticated'}
             return make_response(jsonify(response)), 401
 
