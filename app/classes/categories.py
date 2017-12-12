@@ -170,6 +170,56 @@ class CategoriesManipulation(MethodView):
             return make_response(jsonify(response)), 401
 
 
+class CategorySearch(MethodView):
+    """Class to search a category using pagination
+    """
+    def get(self):
+        """method to search categories of a particular user
+        """
+        authorization_header = request.headers.get('Authorization')
+        access_token = authorization_header.split(" ")[1]
+        q = request.args.get('q', '')
+        page = request.args.get('page', '')
+        limit = request.args.get('limit', '')
+        
+        if not page:
+            page = 1
+        else:
+            page = int(request.args.get('page'))
+        if not limit:
+            limit = 20
+        else:
+            limit = int(request.args.get('limit'))
+
+        if access_token:
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
+                if q:
+                    categories = Categories.query.filter(Categories.category_name.like('%' + q + \
+                    '%')).filter_by(created_by=user_id).paginate(page, limit)
+                    results = []
+
+                    for category in categories.items:
+                        category_object = {
+                            'id': category.id,
+                            'category_name': category.category_name,
+                            'created_by': category.created_by,
+                            'date_created': category.date_created,
+                            'date_modified': category.date_modified
+                        }
+                        results.append(category_object)
+                        return make_response(jsonify(results)), 200
+                else:
+                    response = {'message': 'No search item provided'}
+                    return make_response(jsonify(response)), 404
+
+            response = {'message': 'User not authenticated'}
+            return make_response(jsonify(response)), 401
+
+
+
+
+category_view_search = CategorySearch.as_view('category_view_search')
 category_view_post = Category.as_view('category_view_post')
 
 category_manipulation = CategoriesManipulation.as_view('category_manipulation')
