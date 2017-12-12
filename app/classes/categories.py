@@ -61,6 +61,30 @@ class Category(MethodView):
         """"Method to get all categories"""
         authorization_header = request.headers.get('Authorization')
         access_token = authorization_header.split(" ")[1]
+
+        page = request.args.get('page', '')
+        limit = request.args.get('limit', '')
+        
+        
+        if not page:
+            page = 1
+        else:
+            try:
+                page = int(request.args.get('page'))
+                if page < 1 and int(page) is True:
+                    return {"message": "Page number can only be an integer"}, 400
+            except Exception:
+                return {"message": "Page number not valid"}
+
+        if not limit:
+            limit = 20
+        else:
+            try:
+                limit = int(request.args.get('limit'))
+                if limit < 1 and int(limit) is True:
+                    return {"message": "Limit can only be an integer"}, 400
+            except Exception:
+                return {"message": "Limit is not a valid number "}, 400
         if access_token:
             user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
