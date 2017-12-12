@@ -23,6 +23,10 @@ def make_app(config_name):
     app.add_url_rule('/yummy_api/v1/categories/', view_func=category_view_post)
     app.add_url_rule('/yummy_api/v1/categories/<int:id>', view_func=category_manipulation)
 
+    from app.classes.recipes import recipe_post_get_view, recipe_manipulation_view
+    app.add_url_rule('/yummy_api/v1/categories/<int:id>/recipes/', view_func=recipe_post_get_view)
+    app.add_url_rule('/yummy_api/v1/categories/<int:id>/recipes/<int:recipe_id>', view_func=recipe_manipulation_view)
+
     from app.auth.authentication import user_registration_view,user_login_view
     app.add_url_rule('/yummy_api/v1/auth/register', view_func=user_registration_view, methods=['POST'])
     app.add_url_rule('/yummy_api/v1/auth/login', view_func=user_login_view, methods=['POST'])

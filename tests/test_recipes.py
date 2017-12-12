@@ -1,6 +1,8 @@
+"""Base Class to test recipe.py class"""
+import json
 import unittest
 from app import make_app, db
-import json
+
 
 class RecipesTestCase(unittest.TestCase):
     """Class to test, creation, deletion and editing recipes"""
@@ -11,93 +13,143 @@ class RecipesTestCase(unittest.TestCase):
         self.recipes = {'recipe_name': 'new_recipes',
                         'recipe_ingredients' : 'milk',
                         'recipe_methods': 'boil to heat'}
+        self.categories = {'category_name' : 'new_category'}
 
         #binds app to the current context
         with self.app.app_context():
             #creates all the tables
             db.create_all()
 
+        #register a user 
+        user_details = json.dumps(dict({
+            "email": "test@test.com",
+            "password": "password"
+            }))
+        self.client().post('yummy_api/v1/auth/register', data=user_details,
+                           content_type="application/json")
+        
+        # Login  a test user 
+        login_details = json.dumps(dict({
+            "email": "test@test.com",
+            "password": "password"
+            }))
+
+        self.login_data = self.client().post('yummy_api/v1/auth/login', data=login_details,
+                                             content_type="application/json")
+        
+        # login a user and obtain the token 
+        self.access_token = json.loads(
+            self.login_data.data.decode())['access_token']
+
+        # create a category
+        create_category = self.client().post('/yummy_api/v1/categories/',
+                                             headers=dict(Authorization="Bearer " + self.access_token),
+                                             data=self.categories)
+
+      
+
     def test_to_create_recipe(self):
         """test method to create a recipe"""
-        create_recipe = self.client().post('/flask_api/v1/recipes', data=self.recipes)
+
+        create_recipe = self.client().post('/yummy_api/v1/categories/1/recipes/', 
+                                           headers=dict(Authorization="Bearer " + 
+                                                        self.access_token), data={"recipe_name": "new_recipe",
+                                                                     "recipe_ingredients": "milk", 
+                                                                     "recipe_methods": "heat to boil"})
+
         self.assertEqual(create_recipe.status_code, 201)
 
-        get_created_recipe = self.client().get('/flask_api/v1/recipes/')
+        get_created_recipe = self.client().get('/yummy_api/v1/categories/1/recipes/',
+                                               headers=dict(Authorization="Bearer " +
+                                                            self.access_token))
         self.assertIn('new_recipe', str(get_created_recipe.data))
 
     def test_to_get_all_recipes(self):
         """Test method to get all recipes"""
-        create_recipe = self.client().post('/flask_api/v1/recipes/', data=self.recipes)
+        create_recipe = self.client().post('/yummy_api/v1/categories/1/recipes/', 
+                                           headers=dict(Authorization="Bearer " + 
+                                                        self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
+        create_another_recipe = self.client().post('/yummy_api/v1/categories/1/recipes/',
+                                                   headers=dict(Authorization="Bearer " +
+                                                                self.access_token), data=self.recipes)
+        self.assertEqual(create_another_recipe.status_code, 201)
 
-        get_created_recipe = self.client().get('/flask_api/v1/recipes/')
-        self.assertEqual(get_created_recipe.data, 200)
-        self.assertIn('new_recipe', str(get_created_recipe.data))
+        get_created_recipe = self.client().get('/yummy_api/v1/categories/1/recipes/',
+                                               headers=dict(Authorization="Bearer " +
+                                                            self.access_token))
+        self.assertEqual(get_created_recipe.status_code, 200)
 
     def test_to_edit_a_recipe_name(self):
         """Test to edit a recipe name"""
-        create_recipe = self.client().post('/flask_api/v1/recipes/', data={'recipe_name': 'new_recipe_name',
-                                                                           'recipe_ingredients' : 'milk',
-                                                                           'recipe_methods': 'boil to heat'})
+        create_recipe = self.client().post('/yummy_api/v1/categories/1/recipes/',
+                                           headers=dict(Authorization="Bearer " +
+                                                        self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
-        
-        edit_recipe = self.client().put('/flask_api/v1/recipes/1', data={'recipe_name': 'new_recipe_name',
-                                                                           'recipe_ingredients' : 'milk',
-                                                                           'recipe_methods': 'boil to heat'})
+
+        edit_recipe = self.client().put('/yummy_api/v1/categories/1/recipes/1',
+                                        headers=dict(Authorization="Bearer " +
+                                                     self.access_token),data={'recipe_name': 'edited_recipe_name',
+                                                                 'recipe_ingredients' : 'milk, milk',
+                                                                 'recipe_methods': 'boil to heat'})
         self.assertEqual(edit_recipe.status_code, 201)
-        get_edited_recipe = self.client().get('/flask_api/v1/recipes/1')
-        self.assertIn('edited_recipe_name', get_edited_recipe.data)
+     
 
     def test_to_edit_recipe_ingredients(self):
-        """Test to chec the edit_recipe_ingredients functionality"""
-        create_recipe = self.client().post('/flask_api/v1/recipes/', data={'recipe_name': 'new_recipe_name',
-                                                                           'recipe_ingredients' : 'milk',
-                                                                           'recipe_methods': 'boil to heat'})
+        """Test to chec the edit_recipe_ingredients functionality
+        """
+        create_recipe = self.client().post('/yummy_api/v1/categories/1/recipes/',
+                                           headers=dict(Authorization="Bearer " +
+                                                        self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
-        edit_recipe = self.client().put('/flask_api/v1/recipes/1', data={'recipe_name': 'new_recipe_name',
+        edit_recipe = self.client().put('/yummy_api/v1/categories/1/recipes/1',
+                                        headers=dict(Authorization="Bearer " +
+                                                     self.access_token),data={'recipe_name': 'new_recipe_name',
                                                                          'recipe_ingredients' : 'Butter',
                                                                          'recipe_methods': 'boil to heat'})
         self.assertEqual(edit_recipe.status_code, 201)
-        get_edited_recipe = self.client().get('/flask_api/v1/recipes/1')
-        self.assertIn('Butter', get_edited_recipe.data)
 
     def test_to_edit_recipe_preparation(self):
-        """Test to check the edit recipe preparation method functionality"""
-        create_recipe = self.client().post('/flask_api/v1/recipes/', data={'recipe_name': 'new_recipe_name',
-                                                                           'recipe_ingredients' : 'milk',
-                                                                           'recipe_methods': 'boil to heat'})
+        """Test to check the edit recipe preparation method functionality
+        """
+        create_recipe = self.client().post('/yummy_api/v1/categories/1/recipes/',
+                                           headers=dict(Authorization="Bearer " +
+                                           self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
-        edit_recipe = self.client().put('/flask_api/v1/recipes/1', data={'recipe_name': 'new_recipe_name',
+        edit_recipe = self.client().put('/yummy_api/v1/categories/1/recipes/1',
+                                        headers=dict(Authorization="Bearer " +
+                                        self.access_token), data={'recipe_name': 'new_recipe_name',
                                                                          'recipe_ingredients' : 'Butter',
                                                                          'recipe_methods': 'warm till ready'})
         self.assertEqual(edit_recipe.status_code, 201)
-        get_edited_recipe = self.client().get('/flask_api/v1/recipes/1')
-        self.assertIn('warm till ready', get_edited_recipe.data)
-
     def test_to_get_recipe_by_id(self):
-        """Test to get a single recipe using the recipe id"""
-        create_recipe = self.client().post('/flask_api/v1/recipes/', data={'recipe_name': 'new_recipe_name',
-                                                                           'recipe_ingredients': 'milk',
-                                                                           'recipe_methods': 'boil to heat'})
+        """Test to get a single recipe using the recipe id
+        """
+        create_recipe = self.client().post('/yummy_api/v1/categories/1/recipes/',
+                                           headers=dict(Authorization="Bearer " +
+                                                        self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
-        get_recipe = self.client().get('/flask_api/v1/recipes/1')
-        self.assertEqual(get_recipe.status_code, 200)
-        self.assertIn('new_recipe_name', str(get_recipe.data))
+        
+        get_recipe = self.client().get('/yummy_api/v1/categories/1/recipes/1',
+                                       headers=dict(Authorization="Bearer " +
+                                                    self.access_token))
+        # self.assertEqual(get_recipe.status_code, 200)
+        self.assertIn('new_recipes', str(get_recipe.data))
 
-    def recipe_delete_by_id(self):
-        create_recipe = self.client().post('/flask_api/v1/recipes/', data={'recipe_name': 'new_recipe_name',
-                                                                           'recipe_ingredients': 'milk',
-                                                                           'recipe_methods': 'boil to heat'})
+    def test_recipe_delete_by_id(self):
+        """Method to test recipe delete by id
+        """
+        create_recipe = self.client().post('/yummy_api/v1/categories/1/recipes/',
+                                           headers=dict(Authorization="Bearer " +
+                                                        self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
-
-        delete_result = self.client().delete('/flask_api/v1/recipes/1')
+       
+        delete_result = self.client().delete('/yummy_api/v1/categories/1/recipes/1',
+                                             headers=dict(Authorization="Bearer " +
+                                                          self.access_token))
         self.assertEqual(delete_result.status_code, 200)
-
-        # Test to see if the deleted category still exists, if not a 404 should be returned
-        result_if_recipe_exists = self.client().get('/flask_api/v1/recipes/1')
-        self.assertEqual(result_if_recipe_exists.status_code, 404)
 
     def tearDown(self):
         """teardown all initialized variables."""

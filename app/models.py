@@ -25,10 +25,6 @@ class User(db.Model):
     categories = db.relationship(
         'Categories', order_by='Categories.id', cascade="all, delete-orphan")
 
-    # Delete all the recipes that belong to a user if the owner is deleted from the db
-    recipe = db.relationship(
-        'Recipes', order_by='Recipes.id', cascade="all, delete-orphan")
-
     def __init__(self, email, password):
         """
         constructor method to initialize class 
@@ -55,11 +51,11 @@ class User(db.Model):
 
     def user_token_generator(self, user_id):
         """" Method to generate a token for user identification """
-        app_secret = os.getenv('SECRET')
+        app_secret = os.getenv('SECRET', '#%$#%$^FDFGFGdf')
         try:
             # set up a payload with an expiration time
             token_payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'exp': datetime.utcnow() + timedelta(minutes=30),
                 'iat': datetime.utcnow(),
                 'usr': user_id
             }
@@ -78,7 +74,7 @@ class User(db.Model):
     @staticmethod
     def decode_token(token):
         """Method to decode the provided token"""
-        app_secret = os.getenv('SECRET')
+        app_secret = os.getenv('SECRET', '#%$#%$^FDFGFGdf')
         try:
             payload = jwt.decode(token, app_secret)
             return payload['usr']
@@ -143,15 +139,13 @@ class Recipes(db.Model):
     recipe_name = db.Column(db.String(256), nullable=False)
     recipe_ingredients = db.Column(db.String(256), nullable=False)
     recipe_methods = db.Column(db.String(256), nullable=False)
-
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
-    created_by = db.Column(db.Integer, db.ForeignKey(User.id))
-    category_name = db.Column(db.Integer, db.ForeignKey(Categories.id))
+    category_id = db.Column(db.Integer, db.ForeignKey(Categories.id))
 
-    def __init__(self, recipe_name, recipe_ingredients,recipe_methods, created_by):
+    def __init__(self, recipe_name, recipe_ingredients,recipe_methods, category_id):
         """
         Constructor to initialize the class variables, category
         name and the owner
@@ -159,7 +153,7 @@ class Recipes(db.Model):
         self.recipe_name = recipe_name
         self.recipe_ingredients = recipe_ingredients
         self.recipe_methods = recipe_methods
-        self.created_by = created_by
+        self.category_id= category_id
 
     def save(self):
         """
@@ -169,12 +163,12 @@ class Recipes(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all_user_recipes(userid):
+    def get_all_user_recipes(category_id):
         """
         This method fetches all the recipe categories
         that belong to a user.
         """
-        return Recipes.query.filter_by(created_by=userid)
+        return Recipes.query.filter_by(category_id=category_id)
 
     def delete_recipes(self):
         """ This method deletes a recipe category belonging to a user """
