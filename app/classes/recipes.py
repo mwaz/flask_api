@@ -114,7 +114,7 @@ class recipes_manipulation(MethodView):
                 recipe = Recipes.query.filter_by(category_id=id, id=recipe_id ).first()
                 if not recipe:
                     response = {'message':'No recipe found'}
-                    response = make_response(jsonify(response)), 401
+                    response = make_response(jsonify(response)), 404
                     return response
                 else:
                     response = {'id': recipe.id,
@@ -160,7 +160,7 @@ class recipes_manipulation(MethodView):
 
                 if not recipe:
                     response = {'message': 'No recipe found'}
-                    response = make_response(jsonify(response)), 401
+                    response = make_response(jsonify(response)), 404
                     return response
                 else:
                     recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
