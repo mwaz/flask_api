@@ -49,6 +49,13 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def password_hash(password):
+        """method to hash provided password
+        """
+        # generates password hash using 'BYCRYPT'
+        password = Bcrypt().generate_password_hash(password).decode()
+        return password
+
     def user_token_generator(self, user_id):
         """" Method to generate a token for user identification """
         app_secret = os.getenv('SECRET', '#%$#%$^FDFGFGdf')
