@@ -185,3 +185,54 @@ class Recipes(db.Model):
     def __repr__(self):
         """method simply tells Python how to print objects of the Category class"""
         return "<Recipes: {}>".format(self.recipe_name)
+
+class Sessions(db.Model):
+    """Class to store user login sessions
+    """
+    __tablename__ = 'sessions'
+    id = db.Column(db.Integer, primary_key=True)
+    logged_in_status = db.Column(db.Boolean, nullable=False)
+    user_id = db.Column(db.Integer, unique=True)
+
+    def __init__(self, user_id):
+        """Constructor method for class sessions
+        """
+        self.user_id = user_id
+
+    def save(self):
+        """Method to save the sessions or to update the db sessions
+        """
+        db.session.add(self)
+        db.session.commit
+
+    @staticmethod
+    def login(user_id):
+        """Method to store user logged in state
+        """
+        session = Sessions.query.filter_by(user_id=user_id).first()
+        if session:
+            session.logged_in_status = True
+            session.save()
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def logout(user_id):
+        """Method to store logged out state of a user id
+        """
+        session = Sessions.query.filter_by(user_id=user_id).first()
+        if session:
+            sesion.logged_in_status = False
+            session.save()
+            return True
+        else:
+            return False
+    @staticmethod
+    def login_status(user_id):
+        session = Sessions.query.filter_by(user_id=user_id).first()
+        if session:
+            status = session.is_logged_in
+            return status
+        return False
+
