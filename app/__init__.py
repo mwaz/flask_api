@@ -28,9 +28,10 @@ def make_app(config_name):
     app.add_url_rule(base_url + '/categories/<int:id>/recipes/', view_func=recipe_post_get_view)
     app.add_url_rule(base_url + '/categories/<int:id>/recipes/<int:recipe_id>', view_func=recipe_manipulation_view)
 
-    from app.auth.authentication import user_registration_view,user_login_view, user_password_reset_view
+    from app.auth.authentication import user_registration_view,user_login_view, user_password_reset_view, user_logout_view
     app.add_url_rule(base_url + '/auth/register', view_func=user_registration_view, methods=['POST'])
     app.add_url_rule(base_url + '/auth/login', view_func=user_login_view, methods=['POST'])
     app.add_url_rule(base_url + '/auth/password-reset', view_func=user_password_reset_view, )
+    app.add_url_rule(base_url+ '/auth/logout', view_func=user_logout_view)
 
     return app
