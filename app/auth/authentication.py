@@ -42,8 +42,8 @@ class userLogin(MethodView):
             password = request.data['password']
             if user_details and user_details.password_check(password):
                 access_token = user_details.user_token_generator(user_details.id)
-                session = Session.login(user_details.id)
-                if access_token and session:
+                session = Sessions.login(user_details.id)
+                if access_token:
                     response = {
                         'message': 'Successful Login',
                         'access_token': access_token.decode()
@@ -84,6 +84,36 @@ class userPasswordReset(MethodView):
                 response = {'message': str(e)}
                 return make_response(jsonify(response)), 400
 
+class userLogout(MethodView):
+    """Class to logout a particular user
+    """
+    methods = ['GET']
+    def get(self):
+        """Method to call logout endpoint for a user
+        """
+        authorization_header = request.headers.get('Authorization')
+        access_token = authorization_header.split(" ")[1]
+        if access_token:
+            user_id = User.decode_token(access_token)
+            print(user_id)
+            if not isinstance(user_id, str):
+                try:
+                    session = Sessions.logout(user_id)
+                    response = jsonify({
+                        "message": "You logged out successfully.",
+                        "status": "success"
+                    })
+                    response.status_code = 200
+                    return response
+                except Exception as e:
+                    response = {'message': str(e)}
+                    return make_response(jsonify(response)), 400
+            response = {'message': 'User not authenticated'}
+            return make_response(jsonify(response)), 401
+
+
+
+
 
 
 
@@ -94,6 +124,7 @@ class userPasswordReset(MethodView):
 user_password_reset_view = userPasswordReset.as_view('user_password_reset_view')
 user_registration_view = userRegister.as_view('user_registration_view')
 user_login_view = userLogin.as_view('user_login_view')
+user_logout_view = userLogout.as_view('user_logout_view')
 
 
 
