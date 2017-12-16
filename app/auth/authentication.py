@@ -42,7 +42,6 @@ class userLogin(MethodView):
             password = request.data['password']
             if user_details and user_details.password_check(password):
                 access_token = user_details.user_token_generator(user_details.id)
-                session = Sessions.login(user_details.id)
                 if access_token:
                     response = {
                         'message': 'Successful Login',
