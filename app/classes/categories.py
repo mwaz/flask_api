@@ -1,5 +1,5 @@
 """Class to handle category creation, viewing and manipulation"""
-from app.models import Categories, User
+from app.models import Categories, User, Sessions
 from flask import request, jsonify, abort, make_response
 from flask.views import MethodView
 import re
@@ -12,10 +12,15 @@ class Category(MethodView):
         """"Method to add a new category to the endpoint"""
         authorization_header = request.headers.get('Authorization')
         access_token = authorization_header.split(" ")[1]
+        user_id = User.decode_token(access_token)
+        session = Sessions.login(user_id)
         regex_pattern = "[a-zA-Z- .]+$"
 
+        if not session:
+            response = {'message': 'User is already logged out'}
+            return make_response(jsonify(response)), 401
+
         if access_token:
-            user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
                 category_name = str(request.data.get('category_name', ''))
                 
@@ -61,7 +66,8 @@ class Category(MethodView):
         """"Method to get all categories"""
         authorization_header = request.headers.get('Authorization')
         access_token = authorization_header.split(" ")[1]
-
+        user_id = User.decode_token(access_token)
+        session = Sessions.login(user_id)
         page = request.args.get('page', '')
         limit = request.args.get('limit', '')
         
@@ -85,8 +91,12 @@ class Category(MethodView):
                     return {"message": "Limit can only be an integer"}, 400
             except Exception:
                 return {"message": "Limit is not a valid number "}, 400
+        
+        if not session:
+            response = {'message': 'User is already logged out'}
+            return make_response(jsonify(response)), 401
+
         if access_token:
-            user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
                 categories = Categories.get_all_user_categories()
                 results = []
@@ -107,11 +117,20 @@ class Category(MethodView):
 class CategoriesManipulation(MethodView):
     """Class to handle manipulation of categories using PUT, POST, DELETE and GER"""
     methods = ['GET','POST', 'PUT', 'DELETE']
+    
     def get(self, id):
+        """Method to fetch a single category using its id
+        """
         authorization_header = request.headers.get('Authorization')
         access_token = authorization_header.split(" ")[1]
+        user_id = User.decode_token(access_token)
+        session = Sessions.login(user_id)
+
+        if not session:
+            response = {'message': 'User is already logged out'}
+            return make_response(jsonify(response)), 401
+
         if access_token:
-            user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
                 category = Categories.query.filter_by(id=id).first()
                 if category:
