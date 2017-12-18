@@ -1,28 +1,32 @@
-""""Class to deal with user authenticatication"""
+""""Class to deal with user authenticatication
+"""
+from app.decorators import token_required
 from app.models import User, Sessions
 from flask import request, jsonify, abort, make_response
 from flask.views import MethodView
+from app import db
 
 
 class userRegister(MethodView):
-    """" The class registers a new user"""
+    """" The class registers a new user
+    """
 
     def post(self):
-        """"Method to handle post requests from the auth/register endpoint"""
-
-        #check if a particular user exists
+        """"Method to handle post requests from the auth/register endpoint
+        """
         user_details = User.query.filter_by(email=request.data['email']).first()
         if not user_details:
             try:
                 email = str(request.data.get('email', ''))
                 password = str(request.data.get('password', ''))
                 
-                if not email and not paassord:
+                if not email and not password:
                     response = {'message': "No email provided"}
                     return make_response(jsonify(response)), 422
 
                 user = User(email=email, password=password)
                 user.save()
+
                 response = {'message': "Successfully registered"}
                 return make_response(jsonify(response)), 201
             except Exception as e:
@@ -33,15 +37,18 @@ class userRegister(MethodView):
             return make_response(jsonify(response)), 409
 
 class userLogin(MethodView):
-    """"Class to login a user from the ...auth/login endpoint"""
+    """"Class to login a user from the ...auth/login endpoint
+    """
     def post(self):
-        """"Method to check user login via a POST request"""
+        """"Method to check user login via a POST request
+        """
 
         try:
             user_details = User.query.filter_by(email=request.data['email']).first()
             password = request.data['password']
             if user_details and user_details.password_check(password):
                 access_token = user_details.user_token_generator(user_details.id)
+                
                 if access_token:
                     response = {
                         'message': 'Successful Login',
@@ -86,32 +93,22 @@ class userPasswordReset(MethodView):
 class userLogout(MethodView):
     """Class to logout a particular user
     """
-    methods = ['GET']
-    def get(self):
+    methods = ['POST']
+    decorators = [token_required]
+    def post(self, current_user):
         """Method to call logout endpoint for a user
         """
-        authorization_header = request.headers.get('Authorization')
-        access_token = authorization_header.split(" ")[1]
-        if access_token:
-            user_id = User.decode_token(access_token)
-            print(user_id)
-            if not isinstance(user_id, str):
-                try:
-                    session = Sessions.logout(user_id)
-                    response = jsonify({
-                        "message": "You logged out successfully.",
-                        "status": "success"
-                    })
-                    response.status_code = 200
-                    return response
-                except Exception as e:
-                    response = {'message': str(e)}
-                    return make_response(jsonify(response)), 400
-            response = {'message': 'User not authenticated'}
-            return make_response(jsonify(response)), 401
-
-
-
+        access_token = request.headers.get('Authorization')    
+        disable_token = Sessions(auth_token=access_token)
+        db.session.add(disable_token)
+        db.session.commit()
+        response = jsonify({
+            "message": "You logged out successfully.",
+            "status": "success"
+        })
+        response.status_code = 200
+        return response
+    
 
 
 
