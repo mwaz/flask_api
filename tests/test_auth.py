@@ -60,9 +60,38 @@ class TestAuth(unittest.TestCase):
         user_register = self.client().post('/yummy_api/v1/auth/register', data = self.user_details)
         self.assertEqual(user_register.status_code, 201)
 
-        password_reset = self.client().put('/yummy_api/v1/auth/password-reset', data =self.password_reset_user_details)
-        self.assertEqual(password_reset.status_code, 200)
+        password_reset = self.client().put('/yummy_api/v1/auth/password-reset', data ={'email':'',
+                                           'reset_password':'testing_reset_p@ssword'})
+        self.assertEqual(password_reset.status_code, 404)
+        user_data = json.loads(password_reset.data.decode())
+        self.assertIn(user_data['message'], "Email not found")
+
+    def test_empty_reset_password(self):
+        """Method to test for empty password while doing a password reset
+        """
+        user_register = self.client().post('/yummy_api/v1/auth/register', data = self.user_details)
+        self.assertEqual(user_register.status_code, 201)
+
+        password_reset = self.client().put('/yummy_api/v1/auth/password-reset', data ={'email':'someone@gmail.com',
+                                           'reset_password':''})
+        self.assertEqual(password_reset.status_code, 404)
+        user_data = json.loads(password_reset.data.decode())
+        self.assertIn(user_data['message'], "No password provided")
+
+    def test_user_logout(self):
+        """Method to logout a user
+        """
+        user_register = self.client().post('/yummy_api/v1/auth/register', data = self.user_details)
+        self.assertEqual(user_register.status_code, 201)
+
+        user_login = self.client().post('/yummy_api/v1/auth/login', data = self.user_details)
+        self.assertEqual(user_login.status_code, 200)
+
+          # login a user and obtain the token 
+        self.access_token = json.loads(user_login.data.decode())['access_token']
+
+        user_logout = self.client().post('/yummy_api/v1/auth/logout', headers=dict(Authorization=self.access_token))
+        self.assertEqual(user_logout.status_code, 200)
 
 
-
-
+       
