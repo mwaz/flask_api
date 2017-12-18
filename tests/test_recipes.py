@@ -51,7 +51,7 @@ class RecipesTestCase(unittest.TestCase):
 
         # create a category
         create_category = self.client().post( base_url + '/categories/',
-                                             headers=dict(Authorization="Bearer " + self.access_token),
+                                             headers=dict(Authorization=self.access_token),
                                              data=self.categories)
 
       
@@ -60,7 +60,7 @@ class RecipesTestCase(unittest.TestCase):
         """test method to create a recipe
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/', 
-                                           headers=dict(Authorization="Bearer " + 
+                                           headers=dict(Authorization=
                                                         self.access_token), data={"recipe_name": "New_Recipe",
                                                                      "recipe_ingredients": "milk", 
                                                                      "recipe_methods": "heat to boil"})
@@ -68,7 +68,7 @@ class RecipesTestCase(unittest.TestCase):
         self.assertEqual(create_recipe.status_code, 201)
 
         get_created_recipe = self.client().get(base_url +'/categories/1/recipes/',
-                                               headers=dict(Authorization="Bearer " +
+                                               headers=dict(Authorization=
                                                             self.access_token))
         self.assertIn('New_Recipe', str(get_created_recipe.data))
 
@@ -76,7 +76,7 @@ class RecipesTestCase(unittest.TestCase):
         """test if recipe name is null
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/', 
-                                           headers=dict(Authorization="Bearer " + 
+                                           headers=dict(Authorization=
                                                         self.access_token), data={"recipe_name": "",
                                                                      "recipe_ingredients": "milk", 
                                                                      "recipe_methods": "heat to boil"})
@@ -89,7 +89,7 @@ class RecipesTestCase(unittest.TestCase):
         """test if recipe methods are null
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/', 
-                                           headers=dict(Authorization="Bearer " + 
+                                           headers=dict(Authorization=
                                                         self.access_token), data={"recipe_name": "New Recipe",
                                                                      "recipe_ingredients": "milk", 
                                                                      "recipe_methods": ""})
@@ -102,7 +102,7 @@ class RecipesTestCase(unittest.TestCase):
         """test if recipe ingredients are null
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/', 
-                                           headers=dict(Authorization="Bearer " + 
+                                           headers=dict(Authorization= 
                                                         self.access_token), data={"recipe_name": "New Recipe",
                                                                      "recipe_ingredients": "", 
                                                                      "recipe_methods": "heat to boil"})
@@ -115,7 +115,7 @@ class RecipesTestCase(unittest.TestCase):
         """test if recipe name is valid
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/', 
-                                           headers=dict(Authorization="Bearer " + 
+                                           headers=dict(Authorization=
                                                         self.access_token), data={"recipe_name": "@@@",
                                                                      "recipe_ingredients": "milk, water", 
                                                                      "recipe_methods": "heat to boil"})
@@ -127,13 +127,13 @@ class RecipesTestCase(unittest.TestCase):
         """test if recipe is duplicated
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/', 
-                                                        headers=dict(Authorization="Bearer " + 
+                                                        headers=dict(Authorization= 
                                                         self.access_token), data={'recipe_name': 'New_Recipes',
                                                                                   'recipe_ingredients' : 'milk',
                                                                                   'recipe_methods': 'boil to heat'})
         self.assertEqual(create_recipe.status_code, 201)
         create_another_recipe = self.client().post(base_url + '/categories/1/recipes/', 
-                                           headers=dict(Authorization="Bearer " + 
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
        
         self.assertEqual(create_another_recipe.status_code, 400)
@@ -143,29 +143,27 @@ class RecipesTestCase(unittest.TestCase):
     def test_non_existent_category(self):
         """test if category does not exist
         """
-        create_recipe = self.client().post(base_url + '/categories/0/recipes/', 
-                                                        headers=dict(Authorization="Bearer " + 
+        create_recipe = self.client().post(base_url + '/categories/dsf/recipes/', 
+                                                        headers=dict(Authorization=
                                                         self.access_token), data={'recipe_name': 'New_Recipes',
                                                                                   'recipe_ingredients' : 'milk',
                                                                                   'recipe_methods': 'boil to heat'})
         self.assertEqual(create_recipe.status_code, 404)
-        recipe_data = json.loads(create_recipe.data.decode())
-        self.assertIn(recipe_data['message'], 'Category does not exist')
 
     def test_to_get_all_recipes(self):
         """Test method to get all recipes
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/', 
-                                           headers=dict(Authorization="Bearer " + 
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
         create_another_recipe = self.client().post( base_url + '/categories/1/recipes/',
-                                                   headers=dict(Authorization="Bearer " +
+                                                   headers=dict(Authorization=
                                                                 self.access_token), data=self.other_recipes)
         self.assertEqual(create_another_recipe.status_code, 201)
 
         get_created_recipe = self.client().get(base_url + '/categories/1/recipes/',
-                                               headers=dict(Authorization="Bearer " +
+                                               headers=dict(Authorization=
                                                             self.access_token))
         self.assertEqual(get_created_recipe.status_code, 200)
 
@@ -173,12 +171,12 @@ class RecipesTestCase(unittest.TestCase):
         """Test to edit a recipe name
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
         edit_recipe = self.client().put(base_url + '/categories/1/recipes/1',
-                                        headers=dict(Authorization="Bearer " +
+                                        headers=dict(Authorization=
                                                      self.access_token),data={'recipe_name': 'edited_recipe_name',
                                                                  'recipe_ingredients' : 'milk, milk',
                                                                  'recipe_methods': 'boil to heat'})
@@ -188,12 +186,12 @@ class RecipesTestCase(unittest.TestCase):
         """Test to edit a recipe name with a null name
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
         edit_recipe = self.client().put(base_url + '/categories/1/recipes/1',
-                                        headers=dict(Authorization="Bearer " +
+                                        headers=dict(Authorization=
                                                      self.access_token),data={'recipe_name': '',
                                                                  'recipe_ingredients' : 'milk, milk',
                                                                  'recipe_methods': 'boil to heat'})
@@ -205,12 +203,12 @@ class RecipesTestCase(unittest.TestCase):
         """Test to edit a recipe name with null recipe methods
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
         edit_recipe = self.client().put(base_url + '/categories/1/recipes/1',
-                                        headers=dict(Authorization="Bearer " +
+                                        headers=dict(Authorization=
                                                      self.access_token),data={'recipe_name': 'New_Recipes',
                                                                  'recipe_ingredients' : 'milk, milk',
                                                                  'recipe_methods': ''})
@@ -222,12 +220,12 @@ class RecipesTestCase(unittest.TestCase):
         """Test to edit a recipe name with null recipe ingredients
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
         edit_recipe = self.client().put(base_url + '/categories/1/recipes/1',
-                                        headers=dict(Authorization="Bearer " +
+                                        headers=dict(Authorization=
                                                      self.access_token),data={'recipe_name': 'New_Recipes',
                                                                  'recipe_ingredients' : '',
                                                                  'recipe_methods': 'heat to boil'})
@@ -239,12 +237,12 @@ class RecipesTestCase(unittest.TestCase):
         """Test to edit a recipe name with invalid recipe name
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
         edit_recipe = self.client().put(base_url + '/categories/1/recipes/1',
-                                        headers=dict(Authorization="Bearer " +
+                                        headers=dict(Authorization=
                                                      self.access_token),data={'recipe_name': '@@@@##$',
                                                                  'recipe_ingredients' : 'ingredients here',
                                                                  'recipe_methods': 'heat to boil'})
@@ -256,12 +254,12 @@ class RecipesTestCase(unittest.TestCase):
         """Test to edit a recipe name with invalid recipe name
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
         edit_recipe = self.client().put(base_url + '/categories/1/recipes/2',
-                                        headers=dict(Authorization="Bearer " +
+                                        headers=dict(Authorization=
                                                      self.access_token),data={'recipe_name': 'new recipe name',
                                                                  'recipe_ingredients' : 'ingredients here',
                                                                  'recipe_methods': 'heat to boil'})
@@ -274,12 +272,12 @@ class RecipesTestCase(unittest.TestCase):
         """Test to check the edit_recipe_ingredients functionality
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
         edit_recipe = self.client().put(base_url + '/categories/1/recipes/1',
-                                        headers=dict(Authorization="Bearer " +
+                                        headers=dict(Authorization=
                                                      self.access_token),data={'recipe_name': 'New_Recipe_name',
                                                                          'recipe_ingredients' : 'Butter',
                                                                          'recipe_methods': 'boil to heat'})
@@ -289,12 +287,12 @@ class RecipesTestCase(unittest.TestCase):
         """Test to check the edit recipe preparation method functionality
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                            self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
 
         edit_recipe = self.client().put(base_url + '/categories/1/recipes/1',
-                                        headers=dict(Authorization="Bearer " +
+                                        headers=dict(Authorization=
                                         self.access_token), data={'recipe_name': 'New_Recipe_name',
                                                                          'recipe_ingredients' : 'Butter',
                                                                          'recipe_methods': 'warm till ready'})
@@ -303,12 +301,12 @@ class RecipesTestCase(unittest.TestCase):
         """Test to get a single recipe using the recipe id
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
         
         get_recipe = self.client().get(base_url + '/categories/1/recipes/1',
-                                       headers=dict(Authorization="Bearer " +
+                                       headers=dict(Authorization=
                                                     self.access_token))
         self.assertIn('New_Recipes', str(get_recipe.data))
 
@@ -316,7 +314,7 @@ class RecipesTestCase(unittest.TestCase):
         """Test to check if the recipe id supplied is invalid
         """
         get_recipe = self.client().get(base_url + '/categories/1/recipes/2',
-                                       headers=dict(Authorization="Bearer " +
+                                       headers=dict(Authorization=
                                                     self.access_token))
         recipe_data = json.loads(get_recipe.data.decode())
         self.assertEqual(get_recipe.status_code, 404)
@@ -326,12 +324,12 @@ class RecipesTestCase(unittest.TestCase):
         """Method to test recipe delete by id
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
-                                           headers=dict(Authorization="Bearer " +
+                                           headers=dict(Authorization=
                                                         self.access_token), data=self.recipes)
         self.assertEqual(create_recipe.status_code, 201)
        
         delete_result = self.client().delete(base_url + '/categories/1/recipes/1',
-                                             headers=dict(Authorization="Bearer " +
+                                             headers=dict(Authorization=
                                                           self.access_token))
         self.assertEqual(delete_result.status_code, 200)
 

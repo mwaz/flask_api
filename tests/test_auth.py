@@ -15,6 +15,10 @@ class TestAuth(unittest.TestCase):
         self.unathorized_user_details = {'email': 'uuser@unauthorized.com',
                                          'password': 'none_provided'
                                         }
+        self.password_reset_user_details = {'email':'someone@gmail.com',
+                             'password':'testing_reset_p@ssword'
+                             }
+
 
         with self.app.app_context():
             db.session.close()
@@ -50,6 +54,14 @@ class TestAuth(unittest.TestCase):
         unauthorized_login = self.client().post('/yummy_api/v1/auth/login', data=self.unathorized_user_details)
         self.assertEqual(unauthorized_login.status_code, 401)
 
+    def test_to_reset_password_in_auth(self):
+        """Method to test for password reset
+        """
+        user_register = self.client().post('/yummy_api/v1/auth/register', data = self.user_details)
+        self.assertEqual(user_register.status_code, 201)
+
+        password_reset = self.client().put('/yummy_api/v1/auth/password-reset', data =self.password_reset_user_details)
+        self.assertEqual(password_reset.status_code, 200)
 
 
 
