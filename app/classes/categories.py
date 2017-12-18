@@ -145,7 +145,7 @@ class CategoriesManipulation(MethodView):
         
             if category_details:
                 response = {'message': 'Category name exists'}
-                return make_response(jsonify(response)), 404
+                return make_response(jsonify(response)), 400
 
             category.category_name = category_name
             category.save()
