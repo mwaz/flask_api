@@ -15,6 +15,7 @@ class User(db.Model):
     email - defines email field of a user
     password - defines the password belonging to a user 
     """
+    
     id = db.Column(db.Integer, primary_key=True)
 
     email = db.Column(db.String(256), nullable=False, unique=True)
@@ -120,12 +121,12 @@ class Categories(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all_user_categories():
+    def get_all_user_categories(user_id):
         """
         This method fetches all the recipe categories
         that belong to a user.
         """
-        return Categories.query.filter_by()
+        return Categories.query.filter_by(created_by=user_id)
 
     def delete_categories(self):
         """ This method deletes a recipe category belonging to a user """
@@ -189,15 +190,27 @@ class Recipes(db.Model):
 class Sessions(db.Model):
     """Class to store user login sessions
     """
-    __tablename__ = 'sessions'
+    __tablename__ = 'token_blacklist'
     id = db.Column(db.Integer, primary_key=True)
-    logged_in_status = db.Column(db.Boolean, nullable=False)
-    user_id = db.Column(db.Integer, unique=True)
+    auth_token = db.Column(db.String(256), nullable=False, unique=True)
 
-    def __init__(self, user_id):
-        """Constructor method for class sessions
+    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+    
+    def __init__(self, auth_token):
+        """Constructorm method for sesions class
         """
-        self.user_id = user_id
+        self.auth_token = auth_token
+
+    def check_logout_status(auth_token):
+        """Method to check if a user is logged out
+        """
+        logout_state = Sessions.query.filter_by(auth_token=auth_token).first()
+        if logout_state:
+            return True
+        else:
+            return False
+        
 
     def save(self):
         """Method to save the sessions or to update the db sessions
@@ -205,34 +218,6 @@ class Sessions(db.Model):
         db.session.add(self)
         db.session.commit
 
-    @staticmethod
-    def login(user_id):
-        """Method to store user logged in state
-        """
-        session = Sessions.query.filter_by(user_id=user_id).first()
-        if session:
-            session.logged_in_status = True
-            session.save()
-            return True
-        else:
-            return False
+  
 
-    @staticmethod
-    def logout(user_id):
-        """Method to store logged out state of a user id
-        """
-        session = Sessions.query.filter_by(user_id=user_id).first()
-        if session:
-            sesion.logged_in_status = False
-            session.save()
-            return True
-        else:
-            return False
-    @staticmethod
-    def login_status(user_id):
-        session = Sessions.query.filter_by(user_id=user_id).first()
-        if session:
-            status = session.is_logged_in
-            return status
-        return False
-
+    
