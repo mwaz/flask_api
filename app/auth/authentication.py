@@ -74,6 +74,9 @@ class userPasswordReset(MethodView):
         try: 
             user_details= User.query.filter_by(email=request.data['email']).first()
             reset_password = str(request.data.get('reset_password', ''))
+            if not reset_password:
+                response = {"message": "No password provided"}
+                return make_response(jsonify(response)), 404
             if user_details:
                 res_password = User.password_hash(reset_password)
                 user_details.password = res_password
