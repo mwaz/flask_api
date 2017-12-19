@@ -79,9 +79,13 @@ class Category(MethodView):
             except Exception:
                 return {"message": "Limit is not a valid number "}, 400
 
-        categories = Categories.get_all_user_categories(current_user.id)
+        categories = Categories.get_all_user_categories(current_user.id).paginate(page, limit)
+        if not categories:
+            response = {'message': 'No  category found '}
+            response = make_response(jsonify(response)), 404
+            return response
         results = []
-        for category in categories:
+        for category in categories.items:
             category_object = {
                 'id': category.id,
                 'category_name': category.category_name,
@@ -206,23 +210,28 @@ class CategorySearch(MethodView):
     
         if q:
             # categories = Categories.query.filter_by(category_name=q, created_by=current_user.id).paginate(page, limit)
-            categories = Categories.query.filter(Categories.category_name.like('%' + q + \
-            '%')).filter_by(created_by=current_user.id).paginate(page, limit)
-            results = []
-
-            for category in categories.items:
-                category_object = {
-                    'id': category.id,
-                    'category_name': category.category_name,
-                    'created_by': category.created_by,
-                    'date_created': category.date_created,
-                    'date_modified': category.date_modified
-                }
-                results.append(category_object)
+            categories = Categories.query.filter(Categories.category_name.ilike('%' + q + \
+            '%')).filter(Categories.created_by==current_user.id).paginate(per_page=limit, page=page)
+            
+            if not categories:
+                response = {'message': 'No  category found '}
+                response = make_response(jsonify(response)), 200
+                return response
+            else:
+                results = []
+                for category in categories.items:
+                    category_object = {
+                        'id': category.id,
+                        'category_name': category.category_name,
+                        'created_by': category.created_by,
+                        'date_created': category.date_created,
+                        'date_modified': category.date_modified
+                    }
+                    results.append(category_object)
                 return make_response(jsonify(results)), 200
         else:
             response = {'message': 'No search item provided'}
-            return make_response(jsonify(response)), 404
+            return make_response(jsonify(response)), 200
 
 
 category_view_search = CategorySearch.as_view('category_view_search')
