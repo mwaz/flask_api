@@ -22,11 +22,12 @@ def make_app(config_name):
     from app.classes.categories import category_view_post,category_manipulation,category_view_search
     app.add_url_rule(base_url + '/categories/', view_func=category_view_post)
     app.add_url_rule(base_url + '/categories/<int:id>', view_func=category_manipulation)
-    app.add_url_rule(base_url + '/categories/search', view_func=category_view_search)
+    app.add_url_rule(base_url + '/categories/search/', view_func=category_view_search)
 
-    from app.classes.recipes import recipe_post_get_view, recipe_manipulation_view
+    from app.classes.recipes import recipe_post_get_view, recipe_manipulation_view, recipe_search_view
     app.add_url_rule(base_url + '/categories/<int:id>/recipes/', view_func=recipe_post_get_view)
     app.add_url_rule(base_url + '/categories/<int:id>/recipes/<int:recipe_id>', view_func=recipe_manipulation_view)
+    app.add_url_rule(base_url + '/categories/<int:id>/recipes/search/', view_func=recipe_search_view)
 
     from app.auth.authentication import user_registration_view,user_login_view, user_password_reset_view, user_logout_view
     app.add_url_rule(base_url + '/auth/register', view_func=user_registration_view, methods=['POST'])
