@@ -112,4 +112,19 @@ class TestAuth(unittest.TestCase):
         user_login = self.client().post('yummy_api/v1/auth/login', data={'emaigghl': 'someone@test.com', 'passworrd':'handled exception'})
         self.assertEqual(user_login.status_code, 400)
 
+    def test_to_check_if_authorization_required_on_logout(self):
+        """Method to test for authorizaton on user logout
+        """
+        user_register = self.client().post('/yummy_api/v1/auth/register', data = self.user_details)
+        self.assertEqual(user_register.status_code, 201)
+
+        user_login = self.client().post('/yummy_api/v1/auth/login', data = self.user_details)
+        self.assertEqual(user_login.status_code, 200)
+
+          # login a user and obtain the token 
+        self.access_token = json.loads(user_login.data.decode())['access_token']
+
+        user_logout = self.client().post('/yummy_api/v1/auth/logout')
+        self.assertEqual(user_logout.status_code, 401)
+
     
