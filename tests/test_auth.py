@@ -93,5 +93,14 @@ class TestAuth(unittest.TestCase):
         user_logout = self.client().post('/yummy_api/v1/auth/logout', headers=dict(Authorization=self.access_token))
         self.assertEqual(user_logout.status_code, 200)
 
+    def test_error_exception_on_password_reset(self):
+        """Method to check for a handled error exception on password reset
+        """
+        user_register = self.client().post('/yummy_api/v1/auth/register', data = self.user_details)
+        self.assertEqual(user_register.status_code, 201)
 
+        password_reset = self.client().put('/yummy_api/v1/auth/password-reset', data ={'emailll':'someone@gmail.com',
+                                           'password':''})
+        self.assertEqual(password_reset.status_code, 400)
        
+    
