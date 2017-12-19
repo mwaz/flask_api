@@ -127,4 +127,14 @@ class TestAuth(unittest.TestCase):
         user_logout = self.client().post('/yummy_api/v1/auth/logout')
         self.assertEqual(user_logout.status_code, 401)
 
-    
+    def test_to_check_inexistent_user_email_on_password_reset(self):
+        """test method to check condition if email does not exist on password reset
+        """
+        user_register = self.client().post('/yummy_api/v1/auth/register', data = self.user_details)
+        self.assertEqual(user_register.status_code, 201)
+
+        password_reset = self.client().put('/yummy_api/v1/auth/password-reset', data ={'email':'someonee@gmail.com',
+                                           'reset_password':'testing_p@ssword'})
+        self.assertEqual(password_reset.status_code, 404)
+        password_reset_data = json.loads(password_reset.data.decode())
+        self.assertIn(password_reset_data['message'], 'Email not found')
