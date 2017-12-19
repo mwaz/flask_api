@@ -50,6 +50,7 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    @staticmethod
     def password_hash(password):
         """method to hash provided password
         """
