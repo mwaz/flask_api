@@ -69,10 +69,33 @@ class Recipe(MethodView):
     def get(self, current_user, id):
         """"Method to retrieve all the recipes that belong to a category
         """
+        page = request.args.get('page', '')
+        limit =request.args.get('limit', '')
+
+        if not page:
+            page = 1
+        else:
+            try:
+                page = int(request.args.get('page'))
+                if page < 1 and int(page) is True:
+                    return {"message": "Page number can only be an integer"}, 400
+            except Exception:
+                return {"message": "Page number not valid"}
+
+        if not limit:
+            limit = 20
+        else:
+            try:
+                limit = int(request.args.get('limit'))
+                if limit < 1 and int(limit) is True:
+                    return {"message": "Limit can only be an integer"}, 400
+            except Exception:
+                return {"message": "Limit is not a valid number "}, 400
+        
         category_id = id
-        recipes = Recipes.get_all_user_recipes(category_id)
+        recipes = Recipes.get_all_user_recipes(category_id).paginate(page, limit)
         results = []
-        for recipe in recipes:
+        for recipe in recipes.items:
             recipe_obj = {'id': recipe.id,
                             'recipe_name': recipe.recipe_name,
                             'recipe_ingredients': recipe.recipe_ingredients,
@@ -81,7 +104,8 @@ class Recipe(MethodView):
                             'date_created': recipe.date_created,
                             'date_modified': recipe.date_modified
                             }
-            results.append(recipe_obj)
+            
+            results.append(recipe_obj)   
         response = jsonify(results)
         response.status_code = 200
         return response
@@ -172,6 +196,66 @@ class recipes_manipulation(MethodView):
             response = make_response(jsonify(response)), 200
             return response
 
+class recipeSearch(MethodView):
+    """Class to search a recipe in a particular category
+    """
+    methods=['GET']
+    decorators=[token_required]
+    
+    def get(self, current_user, id):
+        """Method to search a recipe using a get request
+        """
+        q = request.args.get('q', '')
+        page = request.args.get('page', '')
+        limit =request.args.get('limit', '')
+
+        if not page:
+            page = 1
+        else:
+            try:
+                page = int(request.args.get('page'))
+                if page < 1 and int(page) is True:
+                    return {"message": "Page number can only be an integer"}, 400
+            except Exception:
+                return {"message": "Page number not valid"}
+
+        if not limit :
+            limit = 20
+        else:
+            try:
+                limit = int(request.args.get('limit'))
+                if limit < 1 and int(limit) is True:
+                    return {"message": "Limit can only be an integer"}, 400
+            except Exception:
+                return {"message": "Limit is not a valid number "}, 400
+        
+        if q:
+            category_id = id
+            recipes = Recipes.query.filter(Recipes.recipe_name.ilike('%' + q + \
+            '%')).filter(Recipes.category_id==category_id).paginate(per_page=limit, page=page)
+            
+            #recipes = Recipes.get_all_user_recipes(category_id).paginate(page, limit)
+            results = []
+            for recipe in recipes.items:
+                recipe_obj = {'id': recipe.id,
+                                'recipe_name': recipe.recipe_name,
+                                'recipe_ingredients': recipe.recipe_ingredients,
+                                'recipe_methods': recipe.recipe_methods,
+                                'category_id': recipe.category_id,
+                                'date_created': recipe.date_created,
+                                'date_modified': recipe.date_modified
+                                }
+                
+                results.append(recipe_obj)   
+            response = jsonify(results)
+            response.status_code = 200
+            return response
+        else:
+            response = {'message': 'No search item provided'}
+            return make_response(jsonify(response)), 200   
+        
+
+recipe_search_view = recipeSearch.as_view('recipe_search_view')
 recipe_post_get_view = Recipe.as_view('recipe_post_get_view')
 recipe_manipulation_view = recipes_manipulation.as_view('recipe_manipulation_view')
 
