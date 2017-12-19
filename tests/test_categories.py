@@ -4,6 +4,7 @@ import unittest
 import json
 from app import make_app, db
 
+base_url = '/yummy_api/v1/'
 class CategoriesTestCase(unittest.TestCase):
     """Represents the test case for Categories"""
 
@@ -23,7 +24,7 @@ class CategoriesTestCase(unittest.TestCase):
             "email": "test@test.com",
             "password": "password"
             }))
-        self.client().post('yummy_api/v1/auth/register', data=user_details,
+        self.client().post(base_url + 'auth/register', data=user_details,
         content_type="application/json")
 
         # Login  a test user 
@@ -32,7 +33,7 @@ class CategoriesTestCase(unittest.TestCase):
             "password": "password"
             }))
         
-        self.login_data = self.client().post('yummy_api/v1/auth/login', data=user_details,
+        self.login_data = self.client().post(base_url +'auth/login', data=user_details,
         content_type="application/json")
 
         # login a user and obtain the token 
@@ -42,7 +43,7 @@ class CategoriesTestCase(unittest.TestCase):
     def test_create_categories(self):
         """Test if the API can create a recipe category using [post]
         """
-        create_categories = self.client().post('/yummy_api/v1/categories/',
+        create_categories = self.client().post(base_url + 'categories/',
                                                headers=dict(Authorization= self.access_token),
                                                data=self.categories)
         self.assertEqual(create_categories.status_code, 201)
@@ -50,7 +51,7 @@ class CategoriesTestCase(unittest.TestCase):
     def test_null_category_name(self):
         """Method to test failure in creating a category
         """
-        create_categories = self.client().post('/yummy_api/v1/categories/',
+        create_categories = self.client().post(base_url + 'categories/',
                                                headers=dict(Authorization=self.access_token),
                                                data={'category_name' : ''})
         categories_data = json.loads(create_categories.data.decode())
@@ -60,7 +61,7 @@ class CategoriesTestCase(unittest.TestCase):
     def test_invalid_category_name(self):
         """Method to test invalid category name
         """
-        create_categories = self.client().post('/yummy_api/v1/categories/',
+        create_categories = self.client().post(base_url +'categories/',
                                                 headers=dict(Authorization=self.access_token),
                                                 data={'category_name' : '@@@@@'})
         categories_data = json.loads(create_categories.data.decode())
@@ -70,11 +71,11 @@ class CategoriesTestCase(unittest.TestCase):
     def test_existing_category_name(self):
         """Method to test an existing category name
         """
-        create_categories = self.client().post('/yummy_api/v1/categories/', headers=dict(
+        create_categories = self.client().post(base_url +'categories/', headers=dict(
             Authorization=self.access_token), data = self.categories)
         self.assertEqual(create_categories.status_code, 201)
 
-        create_duplicate_categories = self.client().post('/yummy_api/v1/categories/', headers=dict(
+        create_duplicate_categories = self.client().post(base_url +'categories/', headers=dict(
             Authorization=self.access_token), data = self.categories)
         category_data = json.loads(create_duplicate_categories.data.decode())
         self.assertEqual(create_duplicate_categories.status_code, 400)
@@ -83,10 +84,10 @@ class CategoriesTestCase(unittest.TestCase):
     def test_api_can_get_all_recipe_categories(self):
         """Test if the api can get all the recipe categories
         """
-        get_categories = self.client().post('/yummy_api/v1/categories/', headers=dict(
+        get_categories = self.client().post(base_url + 'categories/', headers=dict(
             Authorization=self.access_token), data = self.categories)
         self.assertEqual(get_categories.status_code, 201)
-        get_categories = self.client().get('/yummy_api/v1/categories/', headers=dict(
+        get_categories = self.client().get(base_url + 'categories/', headers=dict(
             Authorization=self.access_token))
         self.assertEqual(get_categories.status_code, 200)
         
@@ -94,11 +95,11 @@ class CategoriesTestCase(unittest.TestCase):
         """test to check if one can get the recipe category
         using provided ID
         """
-        get_category_by_id=self.client().post('/yummy_api/v1/categories/', headers=dict(Authorization=self.access_token), data = self.categories)
+        get_category_by_id=self.client().post(base_url + 'categories/', headers=dict(Authorization=self.access_token), data = self.categories)
         self.assertEqual(get_category_by_id.status_code, 201)
         get_result_in_json = json.loads(get_category_by_id.data.decode('utf-8').replace("'", "\""))
         result = self.client().get(
-            '/yummy_api/v1/categories/{}'.format(get_result_in_json['id']), headers=dict(Authorization= self.access_token))
+            base_url + 'categories/{}'.format(get_result_in_json['id']), headers=dict(Authorization= self.access_token))
         self.assertEqual(result.status_code, 200)
         category_data = json.loads(result.data.decode())
         #test to check if the returned category is the one in the first index
@@ -107,9 +108,9 @@ class CategoriesTestCase(unittest.TestCase):
     def test_api_failure_to_get_a_category(self):
         """test to check error failure if category not found
         """
-        get_category_by_id=self.client().post('/yummy_api/v1/categories/', headers=dict(Authorization=self.access_token), data = self.categories)
+        get_category_by_id=self.client().post(base_url + 'categories/', headers=dict(Authorization=self.access_token), data = self.categories)
         self.assertEqual(get_category_by_id.status_code, 201)
-        result = self.client().get('/yummy_api/v1/categories/2', 
+        result = self.client().get(base_url + 'categories/2', 
         headers=dict(Authorization=self.access_token))
         get_result_in_json = json.loads(result.data.decode())
         self.assertEqual(result.status_code, 404)
@@ -118,24 +119,24 @@ class CategoriesTestCase(unittest.TestCase):
     def test_api_can_edit_a_recipe_category(self):
         """test if API can edit a recipe category
         """
-        create_category = self.client().post('/yummy_api/v1/categories/', headers=dict(Authorization=self.access_token), data={'category_name': 'New_Category'})
+        create_category = self.client().post(base_url + 'categories/', headers=dict(Authorization=self.access_token), data={'category_name': 'New_Category'})
         self.assertEqual(create_category.status_code, 201)
 
-        edit_category = self.client().put('/yummy_api/v1/categories/1', headers=dict(Authorization=self.access_token), data={"category_name": "newly_edited_category"})
+        edit_category = self.client().put(base_url + 'categories/1', headers=dict(Authorization=self.access_token), data={"category_name": "newly_edited_category"})
         self.assertEqual(edit_category.status_code, 200)
 
         #test to check whether the edited category exists
-        results=self.client().get('/yummy_api/v1/categories/1', headers=dict(Authorization=self.access_token))
+        results=self.client().get(base_url + 'categories/1', headers=dict(Authorization=self.access_token))
         category_data = json.loads(results.data.decode())
         self.assertIn('Newly_Edited', category_data['category_name'] )
 
     def test_edit_category_with_null_name(self):
         """test if API can edit a recipe category with a null name
         """
-        create_category = self.client().post('/yummy_api/v1/categories/', headers=dict(Authorization=self.access_token), data={'category_name': 'New_Category'})
+        create_category = self.client().post(base_url + 'categories/', headers=dict(Authorization=self.access_token), data={'category_name': 'New_Category'})
         self.assertEqual(create_category.status_code, 201)
 
-        edit_category = self.client().put('/yummy_api/v1/categories/1', headers=dict(Authorization=self.access_token), data={"category_name": ""})
+        edit_category = self.client().put(base_url + 'categories/1', headers=dict(Authorization=self.access_token), data={"category_name": ""})
         self.assertEqual(edit_category.status_code, 400)
         category_data = json.loads(edit_category.data.decode())
         self.assertIn(category_data['message'], 'category name not provided' )
@@ -143,10 +144,10 @@ class CategoriesTestCase(unittest.TestCase):
     def test_edit_category_with_invalid_name(self):
         """test if API can edit a recipe category with an invalid name
         """
-        create_category = self.client().post('/yummy_api/v1/categories/', headers=dict(Authorization= self.access_token), data={'category_name': 'New_Category'})
+        create_category = self.client().post(base_url + 'categories/', headers=dict(Authorization= self.access_token), data={'category_name': 'New_Category'})
         self.assertEqual(create_category.status_code, 201)
 
-        edit_category = self.client().put('/yummy_api/v1/categories/1', headers=dict(Authorization=self.access_token), data={"category_name": "@@@@"})
+        edit_category = self.client().put(base_url + 'categories/1', headers=dict(Authorization=self.access_token), data={"category_name": "@@@@"})
         self.assertEqual(edit_category.status_code, 400)
         category_data = json.loads(edit_category.data.decode())
         self.assertIn(category_data['message'], 'Category name is not valid' )
@@ -154,10 +155,10 @@ class CategoriesTestCase(unittest.TestCase):
     def test_edit_category_with_existing_category_name(self):
         """test if API can edit a recipe category with an existing category name
         """
-        create_category = self.client().post('/yummy_api/v1/categories/', headers=dict(Authorization=self.access_token), data={'category_name': 'New_Category'})
+        create_category = self.client().post(base_url + 'categories/', headers=dict(Authorization=self.access_token), data={'category_name': 'New_Category'})
         self.assertEqual(create_category.status_code, 201)
 
-        edit_category = self.client().put('/yummy_api/v1/categories/1', headers=dict(Authorization=self.access_token), data={"category_name": "New_Category"})
+        edit_category = self.client().put(base_url + 'categories/1', headers=dict(Authorization=self.access_token), data={"category_name": "New_Category"})
         self.assertEqual(edit_category.status_code, 400)
         category_data = json.loads(edit_category.data.decode())
         self.assertIn(category_data['message'], 'Category name exists' )
@@ -166,10 +167,10 @@ class CategoriesTestCase(unittest.TestCase):
     def test_categories_deletion(self):
         """test API can delete a recipe category
         """
-        create_category = self.client().post('/yummy_api/v1/categories/', headers=dict(Authorization= self.access_token), data={'category_name': 'New_Category_name'})
+        create_category = self.client().post(base_url + 'categories/', headers=dict(Authorization= self.access_token), data={'category_name': 'New_Category_name'})
         self.assertEqual(create_category.status_code, 201)
 
-        delete_result = self.client().delete('/yummy_api/v1/categories/1', headers=dict(Authorization=self.access_token),)
+        delete_result = self.client().delete(base_url + 'categories/1', headers=dict(Authorization=self.access_token),)
         self.assertEqual(delete_result.status_code, 200)
 
 
