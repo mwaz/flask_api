@@ -103,4 +103,13 @@ class TestAuth(unittest.TestCase):
                                            'password':''})
         self.assertEqual(password_reset.status_code, 400)
        
+    def test_error_exception_on_user_login(self):
+        """Method to test handled error exception on user login
+        """
+        user_register = self.client().post('/yummy_api/v1/auth/register', data = self.user_details)
+        self.assertEqual(user_register.status_code, 201)
+
+        user_login = self.client().post('yummy_api/v1/auth/login', data={'emaigghl': 'someone@test.com', 'passworrd':'handled exception'})
+        self.assertEqual(user_login.status_code, 400)
+
     
