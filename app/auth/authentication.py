@@ -4,24 +4,23 @@ from app.decorators import token_required
 from app.models import User, Sessions
 from flask import request, jsonify, abort, make_response
 from flask.views import MethodView
+from flasgger import swag_from
 from app import db
 
 
 class userRegister(MethodView):
     """" The class registers a new user
     """
-
+    @swag_from('docs/auth.yml')
     def post(self):
-        """"Method to handle post requests from the auth/register endpoint
-        """
         user_details = User.query.filter_by(email=request.data['email']).first()
         if not user_details:
             try:
                 email = str(request.data.get('email', ''))
                 password = str(request.data.get('password', ''))
                 
-                if not email and not password:
-                    response = {'message': "No email provided"}
+                if not email or not password:
+                    response = {'message': "Kindly Provide email and password"}
                     return make_response(jsonify(response)), 422
 
                 user = User(email=email, password=password)

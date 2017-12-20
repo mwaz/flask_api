@@ -1,0 +1,39 @@
+"""Method to handle post requests from the auth/register endpoint"""
+---
+tags:
+  - Auth Register
+parameters:
+  - in: body
+    name: User Register
+    description: User's email and password
+    required: true
+    type: string
+    schema:
+      id: register
+      properties:
+        email: 
+          type: string
+          default: test@example.com
+        password:
+          type: string
+          default: P@ssword1
+responses:
+  200:
+    schema:
+      id: register
+      properties:
+        email: 
+          type: string
+          default: test@example.com
+        password:
+          type: string
+          default: P@ssword1
+  201:
+    description: Successfully Registered
+  409:
+    description: User Exists, Kindly Login
+  422:
+    description: Kindly Provide email and password
+  400:
+    description: Bad Request
+    
