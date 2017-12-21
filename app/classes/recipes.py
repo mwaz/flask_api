@@ -15,6 +15,43 @@ class Recipe(MethodView):
     decorators = [token_required]
     def post(self, current_user, id):
         """Method to add a recipe in a category
+        ---
+        tags:
+            - Recipes
+        produces:
+            - application/json
+        security:
+          - TokenHeader: []
+
+        parameters:
+            - in: body
+              name: Recipe Register
+              required: true
+              type: string
+              schema:
+                id: recipes
+                properties:
+                  recipe_name:
+                    type: string
+                    default: Panckakes
+                  recipe_ingredients:
+                    type: long
+                    default: Milk, Flour
+                  recipe_methods:
+                    type: long
+                    default: Cook in a pan till ready
+            - in: path
+              name: id
+              required: true
+              type: integer
+
+
+
+        responses:
+          200:
+            schema:
+              id: recipes
+
         """
         regex_pattern = "[a-zA-Z- .]+$"
         category_id = id
@@ -68,6 +105,34 @@ class Recipe(MethodView):
 
     def get(self, current_user, id):
         """"Method to retrieve all the recipes that belong to a category
+        ---
+        tags:
+            - Recipes
+        produces:
+            - application/json
+        security:
+          - TokenHeader: []
+          - TokenParameter: []
+
+        parameters:
+            - in: path
+              name: id
+              required: true
+              type: integer
+
+            - in: query
+              name: page
+              description: The number of pages of the results to be returned
+
+            - in: query
+              name: limit
+              description: The limit of recipes to be returned by the paginated results
+
+        responses:
+          200:
+            schema:
+              id: recipes
+              description: fetching a recipe
         """
         page = request.args.get('page', '')
         limit =request.args.get('limit', '')
@@ -118,6 +183,32 @@ class recipes_manipulation(MethodView):
     decorators = [token_required]
     def get(self, current_user, id, recipe_id):
         """Method to get a specific recipe in a category
+        ---
+        tags:
+            - Recipes
+        produces:
+            - application/json
+        security:
+          - TokenHeader: []
+          - TokenParameter: []
+
+        parameters:
+            - in: path
+              name: id
+              required: true
+              description: Category id of the category
+              type: integer
+
+            - in: path
+              name: recipe_id
+              required: true
+              description: Recipe id
+              type: integer
+        responses:
+          200:
+            schema:
+              id: recipes
+              description: fetching a single recipe
         """
         recipe = Recipes.query.filter_by(category_id=id, id=recipe_id ).first()
         if not recipe:
@@ -138,6 +229,38 @@ class recipes_manipulation(MethodView):
 
     def put(self, current_user, id, recipe_id):
         """Method to edit a recipe in a category
+        ---
+        tags:
+            - Recipes
+        produces:
+            - application/json
+        security:
+          - TokenHeader: []
+          - TokenParameter: []
+
+        parameters:
+            - in: path
+              name: id
+              required: true
+              description: Category id of the category
+              type: integer
+
+            - in: body
+              name: recipe_name
+              required: true
+              description: New Recipe name of the recipe
+              type: integer
+
+            - in: path
+              name: recipe_id
+              required: true
+              description: Recipe id
+              type: integer
+        responses:
+          200:
+            schema:
+              id: recipes
+              description: editing a recipe
         """
         regex_pattern = "[a-zA-Z- .]+$"
         category_id = id
@@ -184,6 +307,29 @@ class recipes_manipulation(MethodView):
 
     def delete(self, current_user, id, recipe_id):
         """Method to delete a recipe in a category
+        ---
+        tags:
+            - Recipes
+        produces:
+            - application/json
+        security:
+          - TokenHeader: []
+          - TokenParameter: []
+
+        parameters:
+            - in: path
+              name: id
+              required: true
+              description: Category id of the category
+              type: integer
+            - in: path
+              name: recipe_id
+              required: true
+              description: Recipe id
+              type: integer
+        responses:
+          200:
+            description: Successfully deleted a category
         """
         recipe = Recipes.query.filter_by(category_id=id,id=recipe_id).first()
         if not recipe:
@@ -204,6 +350,37 @@ class recipeSearch(MethodView):
     
     def get(self, current_user, id):
         """Method to search a recipe using a get request
+        ---
+        tags:
+          - Recipes
+        produces:
+          - application/json
+        security:
+          - TokenHeader: []
+          - TokenParameter: []
+
+        parameters:
+            - in: path
+              name: id
+              description: category id that the recipe belongs to
+
+            - in: query
+              name: q
+              description: The recipe to be searched for
+
+            - in: query
+              name: page
+              description: The number of pages of the results to be returned
+
+            - in: query
+              name: limit
+              description: The limit of recipes to be returned by the paginated results
+
+        responses:
+          200:
+            schema:
+              id: recipes
+              description: fetching a single recipe
         """
         q = request.args.get('q', '')
         page = request.args.get('page', '')
