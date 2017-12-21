@@ -10,12 +10,39 @@ from instance.config import app_config
 db = SQLAlchemy()
 base_url = '/yummy_api/v1'
 
+
 def make_app(config_name):
     from app.models import Categories
     from app.classes import categories
 
     app = FlaskAPI(__name__, instance_relative_config=True)
-    Swagger(app)
+    Swagger(app, template={
+                       "swagger": "2.0",
+                       "info": {
+                           "title": "Yummy Recipes API documentation",
+                           "description": "Yummy Recipes provides a way to create recipes and their categories and to manipulate them ",
+
+                           "version": "1.0.0",
+                           "basepath": '/',
+                           "uiversion": 3,
+                       },
+                       "securityDefinitions": {
+                           "TokenHeader": {
+                               "type": "apiKey",
+                               "name": "Authorization",
+                               "in": "header"
+                           },
+                           'basicAuth': {'type': 'basic'}
+                       },
+                       "consumes": [
+                           "application/json",
+                       ],
+                       "produces": [
+                           "application/json",
+                       ],
+                   },
+                   )
+
     app.config.from_object(app_config['testing'])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -36,5 +63,6 @@ def make_app(config_name):
     app.add_url_rule(base_url + '/auth/login', view_func=user_login_view, methods=['POST'])
     app.add_url_rule(base_url + '/auth/password-reset', view_func=user_password_reset_view, )
     app.add_url_rule(base_url+ '/auth/logout', view_func=user_logout_view)
+
 
     return app
