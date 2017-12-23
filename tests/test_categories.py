@@ -1,4 +1,5 @@
-"""Class to test the Category class"""
+"""Class to test the Category class methods
+"""
 
 import unittest
 import json
@@ -6,10 +7,12 @@ from app import make_app, db
 
 base_url = '/yummy_api/v1/'
 class CategoriesTestCase(unittest.TestCase):
-    """Represents the test case for Categories"""
+    """Represents the test case for Categories
+    """
 
     def setUp(self):
-        """Defines the initialization variables for the class"""
+        """Defines the initialization variables for the class
+        """
         self.app = make_app(config_name="testing")
         self.client = self.app.test_client
         self.categories = {'category_name' : 'New_Category'}
@@ -43,7 +46,7 @@ class CategoriesTestCase(unittest.TestCase):
     def test_create_categories(self):
         """Test if the API can create a recipe category using [post]
         """
-        create_categories = self.client().post(base_url + 'categories/',
+        create_categories=self.client().post(base_url + 'categories/',
                                                headers=dict(Authorization= self.access_token),
                                                data=self.categories)
         self.assertEqual(create_categories.status_code, 201)
@@ -90,6 +93,23 @@ class CategoriesTestCase(unittest.TestCase):
         get_categories = self.client().get(base_url + 'categories/', headers=dict(
             Authorization=self.access_token))
         self.assertEqual(get_categories.status_code, 200)
+    
+    def test_to_check_for_paginated_recipe_categories(self):
+        """Method to test pagination of category results
+        """
+        get_categories = self.client().post(base_url + 'categories/', headers=dict(
+             Authorization=self.access_token), data=self.categories)
+        self.assertEqual(get_categories.status_code, 201)
+        get_categories = self.client().get(base_url + 'categories/?page=1&limit=1', headers=dict(
+            Authorization=self.access_token))
+        self.assertEqual(get_categories.status_code, 200)
+    
+    def test_to_check_response_from_url_parameters(self):
+        """Method to check returned response of an empty category
+        """
+        get_categories = self.client().get(base_url + 'categories/?page=1435&limit=1342', headers=dict(
+            Authorization=self.access_token))
+        self.assertEqual(get_categories.status_code, 404)
         
     def test_api_can_get_category_by_id(self):
         """test to check if one can get the recipe category
@@ -129,6 +149,13 @@ class CategoriesTestCase(unittest.TestCase):
         results=self.client().get(base_url + 'categories/1', headers=dict(Authorization=self.access_token))
         category_data = json.loads(results.data.decode())
         self.assertIn('Newly_Edited', category_data['category_name'] )
+    
+    def test_api_can_edit_a_recipe_category_that_does_not_exist(self):
+        """test if API can edit a recipe category that does not exist
+        """
+        edit_category = self.client().put(base_url + 'categories/1', headers=dict(
+            Authorization=self.access_token), data={"category_name": "newly_edited_category"})
+        self.assertEqual(edit_category.status_code, 404)
 
     def test_edit_category_with_null_name(self):
         """test if API can edit a recipe category with a null name
