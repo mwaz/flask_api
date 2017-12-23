@@ -200,6 +200,12 @@ class CategoriesTestCase(unittest.TestCase):
         delete_result = self.client().delete(base_url + 'categories/1', headers=dict(Authorization=self.access_token),)
         self.assertEqual(delete_result.status_code, 200)
 
+    def test_inexistent_categories_deletion(self):
+        """test API can delete a recipe category that does not exist
+        """
+        delete_result = self.client().delete(base_url + 'categories/1', headers=dict(Authorization=self.access_token),)
+        self.assertEqual(delete_result.status_code, 404)
+
 
     def tearDown(self):
         """teardown all initialized variables
