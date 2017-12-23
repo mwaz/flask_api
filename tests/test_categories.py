@@ -200,6 +200,34 @@ class CategoriesTestCase(unittest.TestCase):
         delete_result = self.client().delete(base_url + 'categories/1', headers=dict(Authorization=self.access_token),)
         self.assertEqual(delete_result.status_code, 200)
 
+    def test_to_check_for_paginated_searched_recipe_categories(self):
+        """Method to test pagination of searched category results
+        """
+        get_categories = self.client().post(base_url + 'categories/', headers=dict(
+            Authorization=self.access_token), data=self.categories)
+        self.assertEqual(get_categories.status_code, 201)
+        get_categories = self.client().get(base_url + 'categories/search/?q=New&page=1&limit=1', headers=dict(
+            Authorization=self.access_token))
+        self.assertEqual(get_categories.status_code, 200)
+
+    def test_to_check_null_search_response(self):
+        """Method to check returned response of an empty category
+        """
+        get_categories = self.client().get(base_url + 'categories/search/?q=&page=1435&limit=1342', headers=dict(
+            Authorization=self.access_token))
+        self.assertEqual(get_categories.status_code, 200)
+        
+
+    def test_to_check_for_null_recipe_categories_after_search(self):
+        """Method to test pagination of searched category results
+        """
+        get_categories = self.client().post(base_url + 'categories/', headers=dict(
+            Authorization=self.access_token), data=self.categories)
+        self.assertEqual(get_categories.status_code, 201)
+        get_categories = self.client().get(base_url + 'categories/search/?q=Not&page=1&limit=1', headers=dict(
+            Authorization=self.access_token))
+        self.assertEqual(get_categories.status_code, 200)
+
     def test_inexistent_categories_deletion(self):
         """test API can delete a recipe category that does not exist
         """
