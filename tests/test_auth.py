@@ -53,6 +53,14 @@ class TestAuth(unittest.TestCase):
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'], "Password must be at least six characters")
 
+    def test_to_email_regex_pattern_on_register(self):
+        """Method to check for a valid regex pattern on registration
+        """
+        user_register = self.client().post(base_url + '/register',
+                                            data={'email': 't.com', 'password': '2324dsfscdsf'})
+        self.assertEqual(user_register.status_code, 400)
+        user_details = json.loads(user_register.data.decode())
+        self.assertEqual(user_details['message'], "Email pattern not valid")
 
     def test_error_exception_on_user_register(self):
         """Method to check for error handling in registration
