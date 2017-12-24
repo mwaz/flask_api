@@ -143,13 +143,16 @@ class RecipesTestCase(unittest.TestCase):
     def test_non_existent_category(self):
         """test if category does not exist
         """
-        create_recipe = self.client().post(base_url + '/categories/dsf/recipes/', 
+        create_recipe = self.client().post(base_url + '/categories/100/recipes/', 
                                                         headers=dict(Authorization=
                                                         self.access_token), data={'recipe_name': 'New_Recipes',
                                                                                   'recipe_ingredients' : 'milk',
                                                                                   'recipe_methods': 'boil to heat'})
         self.assertEqual(create_recipe.status_code, 404)
+        recipe_details = json.loads(create_recipe.data.decode())
+        self.assertIn(recipe_details['message'], 'Category does not exist')
 
+        
     def test_to_get_all_recipes(self):
         """Test method to get all recipes
         """
@@ -332,6 +335,24 @@ class RecipesTestCase(unittest.TestCase):
                                              headers=dict(Authorization=
                                                           self.access_token))
         self.assertEqual(delete_result.status_code, 200)
+
+    def test_recipe_delete_by_id(self):
+        """Method to test inexistent recipe delete by id
+        """
+        create_recipe = self.client().post(base_url + '/categories/1/recipes/',
+                                           headers=dict(Authorization=
+                                                        self.access_token), data=self.recipes)
+        self.assertEqual(create_recipe.status_code, 201)
+       
+        delete_result = self.client().delete(base_url + '/categories/1/recipes/1',
+                                             headers=dict(Authorization=
+                                                          self.access_token))
+        self.assertEqual(delete_result.status_code, 200)
+
+        delete_result = self.client().delete(base_url + '/categories/1/recipes/1',
+                                             headers=dict(Authorization=
+                                                          self.access_token))
+        self.assertEqual(delete_result.status_code, 404)
 
     def tearDown(self):
         """teardown all initialized variables."""
