@@ -44,6 +44,16 @@ class TestAuth(unittest.TestCase):
         user_details=json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'], "Kindly Provide email and password")
 
+    def test_minimum_required_password_on_register(self):
+        """Methdod to test for the minimum required password length on registration
+        """
+        user_register = self.client().post(base_url + '/register',
+                                           data={'email': 'test@test.com', 'password': '32erw'})
+        self.assertEqual(user_register.status_code, 400)
+        user_details = json.loads(user_register.data.decode())
+        self.assertEqual(user_details['message'], "Password must be at least six characters")
+
+
     def test_error_exception_on_user_register(self):
         """Method to check for error handling in registration
         """
