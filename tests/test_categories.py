@@ -25,7 +25,8 @@ class CategoriesTestCase(unittest.TestCase):
         #register a user 
         user_details = json.dumps(dict({
             "email": "test@test.com",
-            "password": "password"
+            "password": "password",
+            "username": "User"
             }))
         self.client().post(base_url + 'auth/register', data=user_details,
         content_type="application/json")
