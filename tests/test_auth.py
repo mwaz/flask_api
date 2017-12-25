@@ -12,10 +12,12 @@ class TestAuth(unittest.TestCase):
         self.app = make_app(config_name="testing")
         self.client = self.app.test_client
         self.user_details = {'email':'someone@gmail.com',
-                             'password':'testing_p@ssword'
+                             'password':'testing_p@ssword',
+                             'username': 'new_user'
                              }
         self.unathorized_user_details = {'email': 'uuser@unauthorized.com',
-                                         'password': 'none_provided'
+                                         'password': 'none_provided',
+                                         'username': 'new_user'
                                         }
         self.password_reset_user_details = {'email':'someone@gmail.com',
                              'password':'testing_reset_p@ssword'
@@ -39,16 +41,17 @@ class TestAuth(unittest.TestCase):
     def test_empty_email_and_password_on_register(self):
         """Method to check for empty email or password strings on signup
         """
-        user_register = self.client().post(base_url + '/register', data={'email': '', 'password': ''})
+        user_register = self.client().post(base_url + '/register', data={'email': '', 'password': '', 'username': ''})
         self.assertEqual(user_register.status_code, 422)
         user_details=json.loads(user_register.data.decode())
-        self.assertEqual(user_details['message'], "Kindly Provide email and password")
+        self.assertEqual(user_details['message'],
+                         "Kindly Provide all required details")
 
     def test_minimum_required_password_on_register(self):
         """Methdod to test for the minimum required password length on registration
         """
         user_register = self.client().post(base_url + '/register',
-                                           data={'email': 'test@test.com', 'password': '32erw'})
+                                           data={'email': 'test@test.com', 'password': '32erw', 'username': 'New_User'})
         self.assertEqual(user_register.status_code, 400)
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'], "Password must be at least six characters")
@@ -57,11 +60,20 @@ class TestAuth(unittest.TestCase):
         """Method to check for a valid regex pattern on registration
         """
         user_register = self.client().post(base_url + '/register',
-                                            data={'email': 't.com', 'password': '2324dsfscdsf'})
+                                            data={'email': 't.com', 'password': '2324dsfscdsf', 'username': 'User'})
         self.assertEqual(user_register.status_code, 400)
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'], "Email pattern not valid")
 
+    def test_username_regex_pattern(self):
+        """Method to check if username matches provided regex pattern
+        """
+        user_register = self.client().post(base_url + '/register',
+                                           data={'email': 'test@test.com', 'password': '2324dsfscdsf', 'username': '$%$^'})
+        self.assertEqual(user_register.status_code, 400)
+        user_details = json.loads(user_register.data.decode())
+        self.assertEqual(user_details['message'], "No special characters allowed on username")
+    
     def test_error_exception_on_user_register(self):
         """Method to check for error handling in registration
         """
