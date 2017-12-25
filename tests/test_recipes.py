@@ -31,7 +31,8 @@ class RecipesTestCase(unittest.TestCase):
         #register a user 
         user_details = json.dumps(dict({
             "email": "test@test.com",
-            "password": "password"
+            "password": "password",
+            "username": "User"
             }))
         self.client().post(base_url + '/auth/register', data=user_details,
                            content_type="application/json")
@@ -353,6 +354,22 @@ class RecipesTestCase(unittest.TestCase):
                                              headers=dict(Authorization=
                                                           self.access_token))
         self.assertEqual(delete_result.status_code, 404)
+
+    def test_to_check_recipe_search_success(self):
+        """ Method to check for success in searching for a recipe item 
+        """
+        create_recipe = self.client().post(base_url + '/categories/1/recipes/',
+                                          headers=dict(Authorization=self.access_token), data=self.recipes)
+        self.assertEqual(create_recipe.status_code, 201)
+        create_another_recipe = self.client().post(base_url + '/categories/1/recipes/',
+                                                   headers=dict(Authorization=self.access_token), data=self.other_recipes)
+        self.assertEqual(create_another_recipe.status_code, 201)
+
+        get_created_recipe = self.client().get(base_url + '/categories/1/recipes/search/?q=Another_New_Recipes',
+                                               headers=dict(Authorization=self.access_token))
+        self.assertEqual(get_created_recipe.status_code, 200)
+        
+
 
     def test_to_check_for_null_item_provided_for_search(self):
         """ Method to check for no recipe search item provided
