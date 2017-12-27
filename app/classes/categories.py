@@ -85,11 +85,6 @@ class Category(MethodView):
             })
             response.status_code = 201
             return response
-        else:
-            response = {'message': 'not created'}
-            response = jsonify(response)
-            response.status_code = 401
-            return response
 
     def get(self, current_user):
         """"Method to get all categories of a user
@@ -112,36 +107,36 @@ class Category(MethodView):
                     category_name:
                      type: json
                      default: breakfast
+                    created_by:
+                     type: integer
+                     default: 2
+                    date_created:
+                     type: string
+                     default: Wed 20 Dec
+                    date_modified:
+                     type: string
+                     default: Wed 20 Dec
+                    id:
+                     type: integer
+                     default: 1
         """
-        page = request.args.get('page', '')
-        limit = request.args.get('limit', '')
+        page = None
+        limit = None
+        try:
+            if not page or page is None or page < 1 or not isinstance(page, int):
+                page = 1
+            page = int(request.args.get('page', 1))
+        except Exception:
+            return {"message": "Page number not valid"}, 400
 
-
-        if not page:
-            page = 1
-        else:
-            try:
-                page = int(request.args.get('page'))
-                if page < 1 and int(page) is True:
-                    return {"message": "Page number can only be an integer"}, 400
-            except Exception:
-                return {"message": "Page number not valid"}
-
-        if not limit:
-            limit = 20
-        else:
-            try:
-                limit = int(request.args.get('limit'))
-                if limit < 1 and int(limit) is True:
-                    return {"message": "Limit can only be an integer"}, 400
-            except Exception:
-                return {"message": "Limit is not a valid number "}, 400
+        try:
+            if not limit or limit is None or limit < 1 or not isinstance(limit, int):
+                limit = 10
+            limit = int(request.args.get('limit', 10))
+        except Exception:
+            return {"message": "Limit is not a valid number "}, 400
 
         categories = Categories.get_all_user_categories(current_user.id).paginate(page, limit)
-        if not categories:
-            response = {'message': 'No  category found '}
-            response = make_response(jsonify(response)), 404
-            return response
         results = []
         for category in categories.items:
             category_object = {
@@ -151,9 +146,16 @@ class Category(MethodView):
                 'date_modified': category.date_modified
             }
             results.append(category_object)
+        if len(results) <= 0:
+                response = {'message': 'No  category found '}
+                response = make_response(jsonify(response)), 404
+                return response
         response = jsonify(results)
         response.status_code = 200
+        
         return response
+        
+        
 
 class CategoriesManipulation(MethodView):
     """Class to handle manipulation of categories using PUT, POST, DELETE and GET
@@ -396,33 +398,27 @@ class CategorySearch(MethodView):
                      type: integer
                      default: 1
         """
-        q = request.args.get('q', '')
-        page = request.args.get('page', '')
-        limit = request.args.get('limit', '')
+        search = request.args.get('q', '')
+        page = None
+        limit = None
+        try:
+            if not page or page is None or page < 1 or not isinstance(page, int) :
+                page = 1
+            page = int(request.args.get('page', 1))
+        except Exception:
+            return {"message": "Page number not valid"}, 400
 
-        if not page:
-            page = 1
-        else:
-            try:
-                page = int(request.args.get('page'))
-                if page < 1 and int(page) is True:
-                    return {"message": "Page number can only be an integer"}, 400
-            except Exception:
-                return {"message": "Page number not valid"}
+        try:
+            if not limit or limit is None or limit < 1 or not isinstance(limit, int):
+                limit = 10
+            limit = int(request.args.get('limit', 10))
+        except Exception:
+            return {"message": "Limit is not a valid number "}, 400
 
-        if not limit:
-            limit = 20
-        else:
-            try:
-                limit = int(request.args.get('limit'))
-                if limit < 1 and int(limit) is True:
-                    return {"message": "Limit can only be an integer"}, 400
-            except Exception:
-                return {"message": "Limit is not a valid number "}, 400
 
-        if q:
+        if search:
             # categories = Categories.query.filter_by(category_name=q, created_by=current_user.id).paginate(page, limit)
-            categories = Categories.query.filter(Categories.category_name.ilike('%' + q + \
+            categories = Categories.query.filter(Categories.category_name.ilike('%' + search +
             '%')).filter(Categories.created_by==current_user.id).paginate(per_page=limit, page=page)
 
             if not categories:
