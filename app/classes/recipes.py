@@ -56,26 +56,25 @@ class Recipe(MethodView):
         regex_pattern = "[a-zA-Z- .]+$"
         category_id = id
         if category_id:
-            recipe_name = str(request.data.get('recipe_name', ''))
-            recipe_ingredients = request.data.get('recipe_ingredients', '')
-            recipe_methods = request.data.get('recipe_methods', '')
+            try:
+                recipe_name = str(request.data.get('recipe_name', ''))
+                recipe_ingredients = request.data.get('recipe_ingredients', '')
+                recipe_methods = request.data.get('recipe_methods', '')
 
-            if not recipe_name :
-                response = {'message': 'Recipe name not provided'}
-                return make_response(jsonify(response)), 400
-            if not recipe_ingredients :
-                response = {'message': 'Recipe ingredients not provided'}
-                return make_response(jsonify(response)), 400
-            if not recipe_methods :
-                response = {'message': 'Recipe preparation methods not provided'}
-                return make_response(jsonify(response)), 400
+                if not recipe_name :
+                    response = {'message': 'Recipe name not provided'}
+                    return make_response(jsonify(response)), 400
+                if not recipe_ingredients :
+                    response = {'message': 'Recipe ingredients not provided'}
+                    return make_response(jsonify(response)), 400
+                if not recipe_methods :
+                    response = {'message': 'Recipe preparation methods not provided'}
+                    return make_response(jsonify(response)), 400
 
-            if not re.search(regex_pattern, recipe_name):
-                response = {'message': 'Recipe name is not valid'}
-                return make_response(jsonify(response)), 400 
+                if not re.search(regex_pattern, recipe_name):
+                    response = {'message': 'Recipe name is not valid'}
+                    return make_response(jsonify(response)), 400 
 
-
-            if recipe_name:
                 recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
                 recipe_name = None if recipe_name == " " else recipe_name.title()
                 recipe = Recipes(recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
@@ -96,13 +95,11 @@ class Recipe(MethodView):
                             }
                 response = make_response(jsonify(response)),201
                 return response
-            else:
-                response = {'message': 'unable to create recipe'}
-                response = make_response(jsonify(response)), 401
-                return response
-        response = {'message': 'Category does not exist'}
-        response = make_response(jsonify(response)), 404
-
+            
+            except Exception:
+                 response = {'message': 'Category does not exist'}
+                 return make_response(jsonify(response)), 404
+        
     def get(self, current_user, id):
         """"Method to retrieve all the recipes that belong to a category
         ---
@@ -134,28 +131,21 @@ class Recipe(MethodView):
               id: recipes
               description: fetching a recipe
         """
-        page = request.args.get('page', '')
-        limit =request.args.get('limit', '')
+        page = None
+        limit = None
+        try:
+            if not page or page is None or page < 1 or not isinstance(page, int):
+                page = 1
+            page = int(request.args.get('page', 1))
+        except Exception:
+            return {"message": "Page number not valid"}
 
-        if not page:
-            page = 1
-        else:
-            try:
-                page = int(request.args.get('page'))
-                if page < 1 and int(page) is True:
-                    return {"message": "Page number can only be an integer"}, 400
-            except Exception:
-                return {"message": "Page number not valid"}
-
-        if not limit:
-            limit = 20
-        else:
-            try:
-                limit = int(request.args.get('limit'))
-                if limit < 1 and int(limit) is True:
-                    return {"message": "Limit can only be an integer"}, 400
-            except Exception:
-                return {"message": "Limit is not a valid number "}, 400
+        try:
+            if not limit or limit is None or limit < 1 or not isinstance(limit, int):
+                limit = 10
+            limit = int(request.args.get('limit', 10))
+        except Exception:
+            return {"message": "Limit is not a valid number "}, 400
         
         category_id = id
         recipes = Recipes.get_all_user_recipes(category_id).paginate(page, limit)
@@ -334,7 +324,7 @@ class recipes_manipulation(MethodView):
         recipe = Recipes.query.filter_by(category_id=id,id=recipe_id).first()
         if not recipe:
             response = {'message': 'No recipe found'}
-            response = make_response(jsonify(response)), 401
+            response = make_response(jsonify(response)), 404
             return response
         else:
             recipe.delete_recipes()
@@ -382,33 +372,26 @@ class recipeSearch(MethodView):
               id: recipes
               description: fetching a single recipe
         """
-        q = request.args.get('q', '')
-        page = request.args.get('page', '')
-        limit =request.args.get('limit', '')
+        search = request.args.get('q', '')
+        page = None
+        limit = None
+        try:
+            if not page or page is None or page < 1 or not isinstance(page, int):
+                page = 1
+            page = int(request.args.get('page', 1))
+        except Exception:
+            return {"message": "Page number not valid"}
 
-        if not page:
-            page = 1
-        else:
-            try:
-                page = int(request.args.get('page'))
-                if page < 1 and int(page) is True:
-                    return {"message": "Page number can only be an integer"}, 400
-            except Exception:
-                return {"message": "Page number not valid"}
+        try:
+            if not limit or limit is None or limit < 1 or not isinstance(limit, int):
+                limit = 10
+            limit = int(request.args.get('limit', 10))
+        except Exception:
+            return {"message": "Limit is not a valid number "}, 400
 
-        if not limit :
-            limit = 20
-        else:
-            try:
-                limit = int(request.args.get('limit'))
-                if limit < 1 and int(limit) is True:
-                    return {"message": "Limit can only be an integer"}, 400
-            except Exception:
-                return {"message": "Limit is not a valid number "}, 400
-        
-        if q:
+        if search:
             category_id = id
-            recipes = Recipes.query.filter(Recipes.recipe_name.ilike('%' + q + \
+            recipes = Recipes.query.filter(Recipes.recipe_name.ilike('%' + search +
             '%')).filter(Recipes.category_id==category_id).paginate(per_page=limit, page=page)
             
             #recipes = Recipes.get_all_user_recipes(category_id).paginate(page, limit)
