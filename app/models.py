@@ -20,13 +20,15 @@ class User(db.Model):
 
     email = db.Column(db.String(256), nullable=False, unique=True)
 
+    username = db.Column(db.String(256))
+
     password = db.Column(db.String(256), nullable=False)
 
     # Delete all the categories that belong to a user if the owner is deleted from the db
     categories = db.relationship(
         'Categories', order_by='Categories.id', cascade="all, delete-orphan")
 
-    def __init__(self, email, password):
+    def __init__(self, email, password, username):
         """
         constructor method to initialize class 
         variables, username and email
@@ -34,7 +36,7 @@ class User(db.Model):
         self.email = email
         # generates password hash using 'BYCRYPT'
         self.password = Bcrypt().generate_password_hash(password).decode()
-
+        self.username = username
     def password_check(self, password):
         """
         validates if stored password is the user
@@ -105,6 +107,8 @@ class Categories(db.Model):
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
+    recipes = db.relationship(
+        'Recipes', order_by='Recipes.id', cascade="all, delete-orphan")
 
     def __init__(self, category_name, created_by):
         """
