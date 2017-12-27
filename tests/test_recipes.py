@@ -68,7 +68,7 @@ class RecipesTestCase(unittest.TestCase):
 
         self.assertEqual(create_recipe.status_code, 201)
 
-        get_created_recipe = self.client().get(base_url +'/categories/1/recipes/?page&limit',
+        get_created_recipe = self.client().get(base_url +'/categories/1/recipes/',
                                                headers=dict(Authorization=
                                                             self.access_token))
         self.assertIn('New_Recipe', str(get_created_recipe.data))

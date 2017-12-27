@@ -81,6 +81,7 @@ class TestAuth(unittest.TestCase):
                                            data={'emaill': 'test@test.com'})
         self.assertEqual(user_register.status_code, 400)
         
+        
 
     def test_empty_email_and_password_on_login(self):
         """Method to check for empty email or password strings on login
