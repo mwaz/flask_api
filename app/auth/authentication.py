@@ -2,15 +2,15 @@
 """
 from app.decorators import token_required
 from app.models import User, Sessions
+import re
 from flask import request, jsonify, abort, make_response
 from flask.views import MethodView
 from app import db
 
 
 class userRegister(MethodView):
-    """" The class registers a new user
+    """ The class registers a new user
     """
-
     def post(self):
         """Method to handle post requests from the auth/register endpoint
         ---
@@ -18,12 +18,12 @@ class userRegister(MethodView):
             - Auth
         parameters:
             - in: body
-              name: User Login
-              description: User's email and password
+              name: User Register
+              description: User's email, username and password
               required: true
               type: string
               schema:
-                  id: login
+                  id: register
                   properties:
                     email: 
                       type: string
@@ -31,56 +31,78 @@ class userRegister(MethodView):
                     password:
                         type: string
                         default: P@ssword1
+                    username:
+                        type: string
+                        default: User
         responses:
             200:
               schema:
-                  id: login
-                  properties:
-                    email: 
-                      type: string
-                      default: test@example.com
-                    password:
-                        type: string
-                        default: P@ssword1
-            401:
-              description: Invalid Login Details
+                  id: register
             422:
-              description: Kindly Provide email and password
+              description: Kindly Provide all required details
             400:
-              description: Bad Request
+              description: Bad Requests
             
             """
+        regex_email = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        regex_username = "[a-zA-Z0-9- .]+$"
+                    
+        try:
+            user_details = User.query.filter_by(
+                email=request.data['email'].lower()).first()
 
-        user_details = User.query.filter_by(
-            email=request.data['email']).first()
-        if not user_details:
-            try:
-                email = str(request.data.get('email', ''))
-                password = str(request.data.get('password', ''))
+            if not user_details:
+                try:
+                    email = str(request.data.get('email', ''))
+                    password = str(request.data.get('password', ''))
+                    username = str(request.data.get('username', ''))
 
-                if not email or not password:
-                    response = {'message': "Kindly Provide email and password"}
-                    return make_response(jsonify(response)), 422
+                    email = re.sub(r'\s+', ' ', email).strip()
+                    email = None if email == " " else email.lower()
 
-                user = User(email=email, password=password)
-                user.save()
+                    username = re.sub(r'\s+', ' ', username).strip()
+                    username = None if username == " " else username.title()
 
-                response = {'message': "Successfully registered"}
-                return make_response(jsonify(response)), 201
-            except Exception as e:
-                response = {'message': str(e)}
-                return make_response(jsonify(response)), 400
-        else:
-            response = {'message': "User Exists, Kindly Login"}
-            return make_response(jsonify(response)), 409
+                    if not email or not password or not username:
+                        response = {
+                            'message': "Kindly Provide all required details"}
+                        return make_response(jsonify(response)), 422
+
+                    if not re.search(regex_email, email):
+                        response = {'message': "Email pattern not valid"}
+                        return make_response(jsonify(response)), 400
+
+                    if not re.search(regex_username, username):
+                        response = {
+                            'message': "No special characters allowed on username"}
+                        return make_response(jsonify(response)), 400
+
+                    if len(password) < 6:
+                        response = {'message': "Password must be at least six characters"}
+                        return make_response(jsonify(response)), 400
+                    
+                    user = User(email=email, password=password, username=username)
+                    user.save()
+
+                    response = {'message': "Successfully registered"}
+                    return make_response(jsonify(response)), 201
+                except Exception as e:
+                    response = {'message': str(e)}
+                    return make_response(jsonify(response)), 400
+            else:
+                response = {'message': "User Exists, Kindly Login"}
+                return make_response(jsonify(response)), 409
+        except Exception:
+            response = {"messsage": "Error occurred on creating User"}
+            return make_response(jsonify(response)), 400
 
 
 class userLogin(MethodView):
-    """"Class to login a user from the ...auth/login endpoint
+    """Class to login a user from the ...auth/login endpoint
     """
     
     def post(self):
-        """"Method to Login a user
+        """Method to Login a user
         ---
         tags:
             - Auth
@@ -102,21 +124,14 @@ class userLogin(MethodView):
         responses:
          200:
           schema:
-          id: login
-          properties:
-            email: 
-              type: string
-              default: test@example.com
-            password:
-              type: string
-              default: P@ssword1
+            id: login
+
         401:
             description: Invalid Login Details
         422:
             description: Kindly Provide email and password
         400:
-            description: Bad Request
-            
+            description: Bad Requests
         """
         try:
             email=request.data['email']
@@ -142,7 +157,7 @@ class userLogin(MethodView):
                 }
                 return make_response(jsonify(response)), 401
         except Exception as e:
-            response = {'message': str(e)}
+            response = {'message': 'Error occurred on user login'}
             return make_response(jsonify(response)), 400
 
 class userPasswordReset(MethodView):
