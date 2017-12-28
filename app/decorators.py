@@ -10,7 +10,7 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         access_token = None
-        authorization_header = request.headers.get('Authorization')      
+        authorization_header = request.headers.get('Authorization')
         if authorization_header:
             access_token = authorization_header
         if not access_token:
@@ -19,10 +19,11 @@ def token_required(f):
         try:
             blacklisted_token = Sessions.check_logout_status(access_token)
             if blacklisted_token:
-                return make_response(jsonify({"message":"User is already logged out, Please login"}), 401)
+                return make_response(
+                    jsonify({"message":"User is already logged out, Please login"}), 401)
             else:
                 current_user = User.query.filter_by(id=User.decode_token(access_token)).first()
         except Exception:
-            return {"message":"Token is expired"}    
+            return {"message":"Token is expired"}
         return f(current_user, *args, **kwargs)
     return decorated

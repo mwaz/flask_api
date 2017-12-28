@@ -1,9 +1,13 @@
+"""Stores all models from the user to categories and recipes
+"""
 from app import db
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta
 import jwt
 import os
 from instance.config import Config
+
+
 class User(db.Model):
     """The class defines the users table"""
 
@@ -13,9 +17,9 @@ class User(db.Model):
     Table columns:
     id - defines the unique key to identify a particular user in the users table
     email - defines email field of a user
-    password - defines the password belonging to a user 
+    password - defines the password belonging to a user
     """
-    
+
     id = db.Column(db.Integer, primary_key=True)
 
     email = db.Column(db.String(256), nullable=False, unique=True)
@@ -32,7 +36,7 @@ class User(db.Model):
 
     def __init__(self, email, password, username, secret_word):
         """
-        constructor method to initialize class 
+        constructor method to initialize class
         variables, username, password, secret_word and email
         """
         self.email = email
@@ -40,6 +44,7 @@ class User(db.Model):
         self.password = Bcrypt().generate_password_hash(password).decode()
         self.username = username
         self.secret_word = Bcrypt().generate_password_hash(secret_word).decode()
+
     def password_check(self, password):
         """
         validates if stored password is the user
@@ -55,8 +60,8 @@ class User(db.Model):
         return Bcrypt().check_password_hash(self.secret_word, secret_word)
 
     def save(self):
-        """ 
-        The method saves a user to the database if all 
+        """
+        The method saves a user to the database if all
         conditions are met
         """
         db.session.add(self)
@@ -91,7 +96,6 @@ class User(db.Model):
         except Exception as e:
             return str(e)
 
-
     @staticmethod
     def decode_token(token):
         """Method to decode the provided token"""
@@ -103,6 +107,7 @@ class User(db.Model):
             return "Expired token. Please login to get a new token"
         except jwt.InvalidTokenError:
             return "Invalid token. Please register or login"
+
 
 class Categories(db.Model):
     """ Class to define the recipe categories table layout in the db """
@@ -168,7 +173,7 @@ class Recipes(db.Model):
         onupdate=db.func.current_timestamp())
     category_id = db.Column(db.Integer, db.ForeignKey(Categories.id))
 
-    def __init__(self, recipe_name, recipe_ingredients,recipe_methods, category_id):
+    def __init__(self, recipe_name, recipe_ingredients, recipe_methods, category_id):
         """
         Constructor to initialize the class variables, category
         name and the owner
@@ -176,7 +181,7 @@ class Recipes(db.Model):
         self.recipe_name = recipe_name
         self.recipe_ingredients = recipe_ingredients
         self.recipe_methods = recipe_methods
-        self.category_id= category_id
+        self.category_id = category_id
 
     def save(self):
         """
@@ -202,6 +207,7 @@ class Recipes(db.Model):
         """method simply tells Python how to print objects of the Category class"""
         return "<Recipes: {}>".format(self.recipe_name)
 
+
 class Sessions(db.Model):
     """Class to store user login sessions
     """
@@ -211,7 +217,6 @@ class Sessions(db.Model):
 
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-    
     def __init__(self, auth_token):
         """Constructorm method for sesions class
         """
@@ -225,14 +230,9 @@ class Sessions(db.Model):
             return True
         else:
             return False
-        
 
     def save(self):
         """Method to save the sessions or to update the db sessions
         """
         db.session.add(self)
         db.session.commit
-
-  
-
-    
