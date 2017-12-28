@@ -54,9 +54,10 @@ class TestAuth(unittest.TestCase):
     def test_empty_secret_word_on_register(self):
         """Method to test for empty secret word on user register
         """
-        user_register = self.client().post(base_url + '/register',
-                                           data={'email': 'test@test.com', 'password': '32eq5646436rw',
-                                                 'username': 'New_User', 'secret_word': ''})
+        user_register = self.client().post(
+            base_url + '/register',
+            data={'email': 'test@test.com', 'password': '32eq5646436rw',
+                  'username': 'New_User', 'secret_word': ''})
         self.assertEqual(user_register.status_code, 422)
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'],
@@ -66,9 +67,10 @@ class TestAuth(unittest.TestCase):
     def test_minimum_required_password_on_register(self):
         """Methdod to test for the minimum required password length on registration
         """
-        user_register = self.client().post(base_url + '/register',
-                                           data={'email': 'test@test.com', 'password': '32erw',
-                                                 'username': 'New_User', 'secret_word': 'TOP SECRET'})
+        user_register = self.client().post(
+            base_url + '/register',
+            data={'email': 'test@test.com', 'password': '32erw',
+                  'username': 'New_User', 'secret_word': 'TOP SECRET'})
         self.assertEqual(user_register.status_code, 400)
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'],
@@ -87,9 +89,10 @@ class TestAuth(unittest.TestCase):
     def test_username_regex_pattern(self):
         """Method to check if username matches provided regex pattern
         """
-        user_register = self.client().post(base_url + '/register',
-                                           data={'email': 'test@test.com', 
-                                                 'password': '2324dsfscdsf', 'username': '$%$^', 'secret_word': 'TOP SECRET'})
+        user_register = self.client().post(
+            base_url + '/register',
+            data={'email': 'test@test.com',
+                  'password': '2324dsfscdsf', 'username': '$%$^', 'secret_word': 'TOP SECRET'})
         self.assertEqual(user_register.status_code, 400)
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'],
@@ -145,10 +148,10 @@ class TestAuth(unittest.TestCase):
         """
         user_register = self.client().post(base_url + '/register', data=self.user_details)
         self.assertEqual(user_register.status_code, 201)
-        password_reset = self.client().put(base_url + '/password-reset', 
-                                           data={'email': '',
-                                                 'reset_password': 'testing_reset_p@ssword',
-                                                 'secret_word': 'TOP SECRET'})
+        password_reset = self.client().put(
+            base_url + '/password-reset',
+            data={'email': '', 'reset_password': 'testing_reset_p@ssword',
+                  'secret_word': 'TOP SECRET'})
         self.assertEqual(password_reset.status_code, 404)
         user_data = json.loads(password_reset.data.decode())
         self.assertIn(user_data['message'], "Kindly provide correct email and secret word")
@@ -170,9 +173,10 @@ class TestAuth(unittest.TestCase):
         """
         user_register = self.client().post(base_url + '/register', data=self.user_details)
         self.assertEqual(user_register.status_code, 201)
-        password_reset = self.client().put(base_url + '/password-reset',
-                                           data={'email': 'someone@gmail.com',
-                                                 'reset_password': 'new_password', 'secret_word': 'TOP SECRET'})
+        password_reset = self.client().put(
+            base_url + '/password-reset',
+            data={'email': 'someone@gmail.com',
+                  'reset_password': 'new_password', 'secret_word': 'TOP SECRET'})
         self.assertEqual(password_reset.status_code, 200)
 
     def test_user_logout(self):
@@ -235,9 +239,10 @@ class TestAuth(unittest.TestCase):
         """
         user_register = self.client().post(base_url + '/register', data=self.user_details)
         self.assertEqual(user_register.status_code, 201)
-        password_reset = self.client().put(base_url + '/password-reset', 
-                                           data={'email': 'someonee@gmail.com',
-                                                 'reset_password': 'testing_p@ssword', 'secret_word': 'TOP SECRET'})
+        password_reset = self.client().put(
+            base_url + '/password-reset',
+            data={'email': 'someonee@gmail.com',
+                  'reset_password': 'testing_p@ssword', 'secret_word': 'TOP SECRET'})
         self.assertEqual(password_reset.status_code, 404)
         password_reset_data = json.loads(password_reset.data.decode())
         self.assertIn(

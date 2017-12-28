@@ -1,4 +1,4 @@
-""""Class to deal with user authenticatication
+"""Class to deal with user authenticatication
 """
 from app.decorators import token_required
 from app.models import User, Sessions
@@ -25,7 +25,7 @@ class userRegister(MethodView):
               schema:
                   id: register
                   properties:
-                    email: 
+                    email:
                       type: string
                       default: test@example.com
                     password:
@@ -45,11 +45,9 @@ class userRegister(MethodView):
               description: Kindly Provide all required details
             400:
               description: Bad Requests
-            
             """
         regex_email = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
         regex_username = "[a-zA-Z0-9- .]+$"
-                    
         try:
             user_details = User.query.filter_by(
                 email=request.data['email'].lower()).first()
@@ -110,7 +108,6 @@ class userRegister(MethodView):
 class userLogin(MethodView):
     """Class to login a user from the ...auth/login endpoint
     """
-    
     def post(self):
         """Method to Login a user
         ---
@@ -125,7 +122,7 @@ class userLogin(MethodView):
               schema:
                 id: login
                 properties:
-                  email: 
+                  email:
                     type: string
                     default: test@example.com
                   password:
@@ -144,7 +141,7 @@ class userLogin(MethodView):
             description: Bad Requests
         """
         try:
-            email=request.data['email']
+            email = request.data['email']
             password = request.data['password']
             user_details = User.query.filter_by(email=email).first()
 
@@ -203,7 +200,6 @@ class userPasswordReset(MethodView):
           200:
             schema:
               id: password_reset
-                
           400:
             description: No password provided
           404:
@@ -215,7 +211,6 @@ class userPasswordReset(MethodView):
                 email=request.data['email']).first()
             reset_password = str(request.data.get('reset_password', ''))
             secret_word = str(request.data.get('secret_word', ''))
-            
             if not reset_password:
                 response = {"message": "No password provided"}
                 return make_response(jsonify(response)), 400
@@ -223,11 +218,10 @@ class userPasswordReset(MethodView):
                 res_password = User.password_hash(reset_password)
                 user_details.password = res_password
                 user_details.save()
-                response = jsonify({
-                            'id': user_details.id,
-                            'email': user_details.email,
-                            'status': 'success',
-                        })
+                response = jsonify({'id': user_details.id,
+                                    'email': user_details.email,
+                                    'status': 'success',
+                                   })
                 return make_response(response), 200
             else:
                 response = {"message": "Kindly provide correct email and secret word"}

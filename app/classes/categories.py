@@ -1,10 +1,10 @@
 """Class to handle category creation, viewing and manipulation
 """
-from app.decorators import token_required
-from app.models import Categories, User, Sessions
-from flask import request, jsonify, abort, make_response
-from flask.views import MethodView
 import re
+from app.decorators import token_required
+from app.models import Categories
+from flask import request, jsonify, make_response
+from flask.views import MethodView
 
 
 class Category(MethodView):
@@ -12,6 +12,7 @@ class Category(MethodView):
     """
     methods = ['GET', 'POST']
     decorators = [token_required]
+
     def post(self, current_user):
         """"Method to add a new category to the endpoint
         ---
@@ -68,13 +69,15 @@ class Category(MethodView):
         if category_name:
             category_name = re.sub(r'\s+', ' ', category_name).strip()
             category_name = None if category_name == " " else category_name.title()
-            category_details = Categories.query.filter_by(category_name=category_name,created_by=current_user.id).first()
+            category_details = Categories.query.filter_by(
+                category_name=category_name, created_by=current_user.id).first()
 
             if category_details:
                 response = {'message': 'Category name exists'}
                 return make_response(jsonify(response)), 400
 
-            category = Categories(category_name=category_name,created_by=current_user.id)
+            category = Categories(
+                category_name=category_name, created_by=current_user.id)
             category.save()
             response = jsonify({
                 'id': category.id,
@@ -136,7 +139,8 @@ class Category(MethodView):
         except Exception:
             return {"message": "Limit is not a valid number "}, 400
 
-        categories = Categories.get_all_user_categories(current_user.id).paginate(page, limit)
+        categories = Categories.get_all_user_categories(
+            current_user.id).paginate(page, limit)
         results = []
         for category in categories.items:
             category_object = {
@@ -147,20 +151,19 @@ class Category(MethodView):
             }
             results.append(category_object)
         if len(results) <= 0:
-                response = {'message': 'No  category found '}
-                response = make_response(jsonify(response)), 404
-                return response
+            response = {'message': 'No  category found '}
+            response = make_response(jsonify(response)), 404
+            return response
         response = jsonify(results)
         response.status_code = 200
-        
+
         return response
-        
-        
+
 
 class CategoriesManipulation(MethodView):
     """Class to handle manipulation of categories using PUT, POST, DELETE and GET
     """
-    methods = ['GET','PUT', 'DELETE']
+    methods = ['GET', 'PUT', 'DELETE']
     decorators = [token_required]
 
     def get(self, current_user, id):
@@ -203,7 +206,8 @@ class CategoriesManipulation(MethodView):
                      default: 1
 
         """
-        category = Categories.query.filter_by(id=id, created_by=current_user.id).first()
+        category = Categories.query.filter_by(
+            id=id, created_by=current_user.id).first()
         if category:
             response = jsonify({
                 'id': category.id,
@@ -217,8 +221,6 @@ class CategoriesManipulation(MethodView):
         else:
             response = {'message': 'No Category Found'}
             return make_response(jsonify(response)), 404
-
-
 
     def put(self, current_user, id):
         """Method to edit a sigle category
@@ -272,7 +274,8 @@ class CategoriesManipulation(MethodView):
         """
         regex_pattern = "[a-zA-Z- .]+$"
 
-        category = Categories.query.filter_by(id=id, created_by=current_user.id).first()
+        category = Categories.query.filter_by(
+            id=id, created_by=current_user.id).first()
         category_name = str(request.data.get('category_name', ''))
 
         if not category_name:
@@ -289,7 +292,8 @@ class CategoriesManipulation(MethodView):
         else:
             category_name = re.sub(r'\s+', ' ', category_name).strip()
             category_name = None if category_name == " " else category_name.title()
-            category_details = Categories.query.filter_by(category_name=category_name,created_by=current_user.id).first()
+            category_details = Categories.query.filter_by(
+                category_name=category_name, created_by=current_user.id).first()
 
             if category_details:
                 response = {'message': 'Category name exists'}
@@ -334,21 +338,24 @@ class CategoriesManipulation(MethodView):
                      default: category name deleted
 
         """
-        category = Categories.query.filter_by(id=id, created_by=current_user.id).first()
+        category = Categories.query.filter_by(
+            id=id, created_by=current_user.id).first()
         if not category:
             response = {'message': 'Category does not exist'}
             return make_response(jsonify(response)), 404
         else:
             category.delete_categories()
             return {
-                    "message": "successfully deleted category".format(category.id)
-                    }, 200
+                "message": "successfully deleted category" .format(category.id)
+            }, 200
+
 
 class CategorySearch(MethodView):
     """Class to search a category using pagination
     """
     methods = ['GET']
     decorators = [token_required]
+
     def get(self, current_user):
         """method to search categories of a particular user
         ---
@@ -402,7 +409,7 @@ class CategorySearch(MethodView):
         page = None
         limit = None
         try:
-            if not page or page is None or page < 1 or not isinstance(page, int) :
+            if not page or page is None or page < 1 or not isinstance(page, int):
                 page = 1
             page = int(request.args.get('page', 1))
         except Exception:
@@ -415,11 +422,10 @@ class CategorySearch(MethodView):
         except Exception:
             return {"message": "Limit is not a valid number "}, 400
 
-
         if search:
-            # categories = Categories.query.filter_by(category_name=q, created_by=current_user.id).paginate(page, limit)
-            categories = Categories.query.filter(Categories.category_name.ilike('%' + search +
-            '%')).filter(Categories.created_by==current_user.id).paginate(per_page=limit, page=page)
+            categories = Categories.query.filter(Categories.category_name.ilike(
+                '%' + search + '%')).filter(Categories.created_by == current_user.id).paginate(
+                    per_page=limit, page=page)
 
             if not categories:
                 response = {'message': 'No  category found '}
