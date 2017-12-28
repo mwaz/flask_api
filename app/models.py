@@ -22,27 +22,37 @@ class User(db.Model):
 
     username = db.Column(db.String(256))
 
+    secret_word = db.Column(db.String(256))
+
     password = db.Column(db.String(256), nullable=False)
 
     # Delete all the categories that belong to a user if the owner is deleted from the db
     categories = db.relationship(
         'Categories', order_by='Categories.id', cascade="all, delete-orphan")
 
-    def __init__(self, email, password, username):
+    def __init__(self, email, password, username, secret_word):
         """
         constructor method to initialize class 
-        variables, username and email
+        variables, username, password, secret_word and email
         """
         self.email = email
         # generates password hash using 'BYCRYPT'
         self.password = Bcrypt().generate_password_hash(password).decode()
         self.username = username
+        self.secret_word = Bcrypt().generate_password_hash(secret_word).decode()
     def password_check(self, password):
         """
         validates if stored password is the user
          password by comparing the hashed and the provided password
          """
         return Bcrypt().check_password_hash(self.password, password)
+
+    def secret_word_check(self, secret_word):
+        """
+        validates if stored password is the user
+        password by comparing secret_word hashed and the provided secret word
+         """
+        return Bcrypt().check_password_hash(self.secret_word, secret_word)
 
     def save(self):
         """ 

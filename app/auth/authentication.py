@@ -34,6 +34,9 @@ class userRegister(MethodView):
                     username:
                         type: string
                         default: User
+                    secret_word:
+                        type: string
+                        default: TOP_SECRET
         responses:
             200:
               schema:
@@ -56,6 +59,7 @@ class userRegister(MethodView):
                     email = str(request.data.get('email', ''))
                     password = str(request.data.get('password', ''))
                     username = str(request.data.get('username', ''))
+                    secret = str(request.data.get('secret_word', ''))
 
                     email = re.sub(r'\s+', ' ', email).strip()
                     email = None if email == " " else email.lower()
@@ -63,11 +67,17 @@ class userRegister(MethodView):
                     username = re.sub(r'\s+', ' ', username).strip()
                     username = None if username == " " else username.title()
 
+                    secret = re.sub(r'\s+', ' ', secret).strip()
+                    secret = None if secret == " " else secret
+
                     if not email or not password or not username:
                         response = {
                             'message': "Kindly Provide all required details"}
                         return make_response(jsonify(response)), 422
-
+                    if not secret:
+                        response = {
+                            'message': "Kindly Provide a secret word"}
+                        return make_response(jsonify(response)), 422
                     if not re.search(regex_email, email):
                         response = {'message': "Email pattern not valid"}
                         return make_response(jsonify(response)), 400
@@ -81,7 +91,7 @@ class userRegister(MethodView):
                         response = {'message': "Password must be at least six characters"}
                         return make_response(jsonify(response)), 400
                     
-                    user = User(email=email, password=password, username=username)
+                    user = User(email=email, password=password, username=username, secret_word=secret)
                     user.save()
 
                     response = {'message': "Successfully registered"}
@@ -186,30 +196,30 @@ class userPasswordReset(MethodView):
                 reset_password:
                   type: string
                   default: new_P@@sword
+                secret_word:
+                  type: string
+                  default: TOP_SECRET
         responses:
           200:
             schema:
               id: password_reset
-              properties:
-                email:
-                  type: string
-                  default: test@example.com
-                reset_password:
-                  type: string
-                  default: new_P@@sword
+                
           400:
             description: No password provided
           404:
-            description: Email not found
+            description: "Kindly provide correct email and secret word"
         """
 
         try:
-            user_details= User.query.filter_by(email=request.data['email']).first()
+            user_details = User.query.filter_by(
+                email=request.data['email']).first()
             reset_password = str(request.data.get('reset_password', ''))
+            secret_word = str(request.data.get('secret_word', ''))
+            
             if not reset_password:
                 response = {"message": "No password provided"}
                 return make_response(jsonify(response)), 400
-            if user_details:
+            if user_details and user_details.secret_word_check(secret_word):
                 res_password = User.password_hash(reset_password)
                 user_details.password = res_password
                 user_details.save()
@@ -220,7 +230,7 @@ class userPasswordReset(MethodView):
                         })
                 return make_response(response), 200
             else:
-                response = {"message": "Email not found"}
+                response = {"message": "Kindly provide correct email and secret word"}
                 return make_response(jsonify(response)), 404
         except Exception as e:
             response = {'message': str(e)}
