@@ -88,8 +88,9 @@ class userRegister(MethodView):
                     if len(password) < 6:
                         response = {'message': "Password must be at least six characters"}
                         return make_response(jsonify(response)), 400
-                    
-                    user = User(email=email, password=password, username=username, secret_word=secret)
+
+                    user = User(email=email, password=password,
+                                username=username, secret_word=secret)
                     user.save()
 
                     response = {'message': "Successfully registered"}

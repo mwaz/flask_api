@@ -1,6 +1,7 @@
-import jwt
-from flask import jsonify, make_response, request
+"""Decorator method to login and logout a user
+"""
 from functools import wraps
+from flask import jsonify, make_response, request
 from app.models import User, Sessions
 
 
@@ -9,6 +10,9 @@ def token_required(f):
     """
     @wraps(f)
     def decorated(*args, **kwargs):
+        """Decorator method to handle access token
+        issuance and blacklisting on logout
+        """
         access_token = None
         authorization_header = request.headers.get('Authorization')
         if authorization_header:
