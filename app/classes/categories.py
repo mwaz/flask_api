@@ -56,7 +56,12 @@ class Category(MethodView):
             description: category created
         """
         regex_pattern = "[a-zA-Z- .]+$"
-        category_name = str(request.data.get('category_name', ''))
+        category_name = str(request.data.get('category_name'))
+
+        if category_name:
+            category_name = re.sub(r'\s+', ' ', category_name).strip()
+
+        category_name = None if category_name == " " else category_name.title()
 
         if not category_name:
             response = {'message': 'category name not provided'}
@@ -66,28 +71,25 @@ class Category(MethodView):
             response = {'message': 'Category name is not valid'}
             return make_response(jsonify(response)), 400
 
-        if category_name:
-            category_name = re.sub(r'\s+', ' ', category_name).strip()
-            category_name = None if category_name == " " else category_name.title()
-            category_details = Categories.query.filter_by(
+        category_details = Categories.query.filter_by(
                 category_name=category_name, created_by=current_user.id).first()
 
-            if category_details:
-                response = {'message': 'Category name exists'}
-                return make_response(jsonify(response)), 400
+        if category_details:
+            response = {'message': 'Category name exists'}
+            return make_response(jsonify(response)), 400
 
-            category = Categories(
-                category_name=category_name, created_by=current_user.id)
-            category.save()
-            response = jsonify({
-                'id': category.id,
-                'category_name': category.category_name,
-                'created_by': category.created_by,
-                'date_created': category.date_created,
-                'date_modified': category.date_modified
-            })
-            response.status_code = 201
-            return response
+        category = Categories(
+            category_name=category_name, created_by=current_user.id)
+        category.save()
+        response = jsonify({
+            'id': category.id,
+            'category_name': category.category_name,
+            'created_by': category.created_by,
+            'date_created': category.date_created,
+            'date_modified': category.date_modified
+        })
+        response.status_code = 201
+        return response
 
     def get(self, current_user):
         """"Method to get all categories of a user
@@ -278,6 +280,11 @@ class CategoriesManipulation(MethodView):
             id=id, created_by=current_user.id).first()
         category_name = str(request.data.get('category_name', ''))
 
+        if category_name:
+            category_name = re.sub(r'\s+', ' ', category_name).strip()
+
+        category_name = None if category_name == " " else category_name.title()
+
         if not category_name:
             response = {'message': 'category name not provided'}
             return make_response(jsonify(response)), 400
@@ -289,27 +296,25 @@ class CategoriesManipulation(MethodView):
         if not category:
             response = {'message': 'Category does not exist'}
             return make_response(jsonify(response)), 404
-        else:
-            category_name = re.sub(r'\s+', ' ', category_name).strip()
-            category_name = None if category_name == " " else category_name.title()
-            category_details = Categories.query.filter_by(
+
+        category_details = Categories.query.filter_by(
                 category_name=category_name, created_by=current_user.id).first()
 
-            if category_details:
-                response = {'message': 'Category name exists'}
-                return make_response(jsonify(response)), 400
+        if category_details:
+            response = {'message': 'Category name exists'}
+            return make_response(jsonify(response)), 400
 
-            category.category_name = category_name
-            category.save()
-            response = jsonify({
-                'id': category.id,
-                'category_name': category.category_name,
-                'created_by': category.created_by,
-                'date_created': category.date_created,
-                'date_modified': category.date_modified
-            })
-            response.status_code = 200
-            return response
+        category.category_name = category_name
+        category.save()
+        response = jsonify({
+            'id': category.id,
+            'category_name': category.category_name,
+            'created_by': category.created_by,
+            'date_created': category.date_created,
+            'date_modified': category.date_modified
+        })
+        response.status_code = 200
+        return response
 
     def delete(self, current_user, id):
         """Method to delete a single category using its category id

@@ -59,13 +59,16 @@ class userRegister(MethodView):
                     username = str(request.data.get('username', ''))
                     secret = str(request.data.get('secret_word', ''))
 
-                    email = re.sub(r'\s+', ' ', email).strip()
+                    if email:
+                        email = re.sub(r'\s+', ' ', email).strip()
                     email = None if email == " " else email.lower()
 
-                    username = re.sub(r'\s+', ' ', username).strip()
+                    if username:
+                        username = re.sub(r'\s+', ' ', username).strip()
                     username = None if username == " " else username.title()
 
-                    secret = re.sub(r'\s+', ' ', secret).strip()
+                    if secret:
+                        secret = re.sub(r'\s+', ' ', secret).strip()
                     secret = None if secret == " " else secret
 
                     if not email or not password or not username:
@@ -89,11 +92,14 @@ class userRegister(MethodView):
                         response = {'message': "Password must be at least six characters"}
                         return make_response(jsonify(response)), 400
 
-                    user = User(email=email, password=password,
+                    try:
+                        user = User(email=email, password=password,
                                 username=username, secret_word=secret)
-                    user.save()
-
-                    response = {'message': "Successfully registered"}
+                        user.save()
+                        response = {'message': "Successfully registered"}
+                    except Exception as e:
+                        response = {'message': "User Exists, Kindly Login"}
+                        return make_response(jsonify(response)), 409
                     return make_response(jsonify(response)), 201
                 except Exception as e:
                     response = {'message': str(e)}
@@ -212,6 +218,11 @@ class userPasswordReset(MethodView):
                 email=request.data['email']).first()
             reset_password = str(request.data.get('reset_password', ''))
             secret_word = str(request.data.get('secret_word', ''))
+
+            if reset_password:
+                reset_password = re.sub(r'\s+', ' ', reset_password).strip()
+            reset_password = None if reset_password == " " else reset_password
+
             if not reset_password:
                 response = {"message": "No password provided"}
                 return make_response(jsonify(response)), 400

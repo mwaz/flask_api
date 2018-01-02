@@ -58,6 +58,10 @@ class Recipe(MethodView):
                 recipe_ingredients = request.data.get('recipe_ingredients', '')
                 recipe_methods = request.data.get('recipe_methods', '')
 
+                if recipe_name:
+                    recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
+                recipe_name = None if recipe_name == "" else recipe_name.title()
+
                 if not recipe_name:
                     response = {'message': 'Recipe name not provided'}
                     return make_response(jsonify(response)), 400
@@ -73,8 +77,6 @@ class Recipe(MethodView):
                     response = {'message': 'Recipe name is not valid'}
                     return make_response(jsonify(response)), 400
 
-                recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
-                recipe_name = None if recipe_name == " " else recipe_name.title()
                 recipe = Recipes(recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
                                  recipe_methods=recipe_methods, category_id=category_id)
                 recipe_details = Recipes.query.filter_by(
@@ -261,6 +263,10 @@ class recipes_manipulation(MethodView):
         recipe_ingredients = str(request.data.get('recipe_ingredients', ''))
         recipe_methods = str(request.data.get('recipe_methods', ''))
 
+        if recipe_name:
+            recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
+        recipe_name = None if recipe_name == "" else recipe_name.title()
+
         if not recipe_name:
             response = {'message': 'Recipe name not provided'}
             return make_response(jsonify(response)), 400
@@ -280,8 +286,6 @@ class recipes_manipulation(MethodView):
             response = make_response(jsonify(response)), 404
             return response
         else:
-            recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
-            recipe_name = None if recipe_name == " " else recipe_name.title()
             recipe.recipe_name = recipe_name
             recipe.recipe_ingredients = recipe_ingredients
             recipe.recipe_methods = recipe_methods
@@ -398,8 +402,6 @@ class recipeSearch(MethodView):
             recipes = Recipes.query.filter(Recipes.recipe_name.ilike(
                 '%' + search + '%')).filter(Recipes.category_id == category_id).paginate(
                     per_page=limit, page=page)
-
-            #recipes = Recipes.get_all_user_recipes(category_id).paginate(page, limit)
             results = []
             for recipe in recipes.items:
                 recipe_obj = {'id': recipe.id,
