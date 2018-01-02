@@ -16,37 +16,36 @@ def make_app(config_name):
     from app.classes import categories
 
     app = FlaskAPI(__name__, instance_relative_config=True)
-    Swagger(app, template={
-        "swagger": "2.0",
-        "info": {
-            "title": "Yummy Recipes API documentation",
-            "description": "Yummy Recipes provides a way to create recipes and their categories and to manipulate them ",
-            "version": "1.0.0",
-            "basepath": '/',
-            "uiversion": 3,
-        },
-        "securityDefinitions": {
-            "TokenHeader": {
-                "type": "apiKey",
-                "name": "Authorization",
-                "in": "header"
-            },
-            'basicAuth': {'type': 'basic'}
-        },
-        "consumes": [
-            "application/json",
-        ],
-        "produces": [
-            "application/json",
-        ],
-    },
-           )
 
     app.config.from_object(app_config['testing'])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
-
+    app.config['SWAGGER'] = { "swagger": "2.0",
+                              "title": "Yummy Recipes",
+                             "info": {
+                                 "title": "Yummy Recipes API documentation",
+                                 "description": "Yummy Recipes provides a way to create recipes and their categories and to manipulate them ",
+                                 "version": "1.0.0",
+                                 "basepath": '/',
+                                 "uiversion": 3,
+                             },
+                             "securityDefinitions": {
+                                 "TokenHeader": {
+                                     "type": "apiKey",
+                                     "name": "Authorization",
+                                     "in": "header"
+                                 },
+                                
+                             },
+                             "consumes": [
+                                 "application/json",
+                             ],
+                             "produces": [
+                                 "application/json",
+                             ],}
+                             
+    Swagger(app)
     from app.classes.categories import category_view_post, category_manipulation, category_view_search
     app.add_url_rule(base_url + '/categories/', view_func=category_view_post)
     app.add_url_rule(base_url + '/categories/<int:id>',
