@@ -49,6 +49,12 @@ class Recipe(MethodView):
           200:
             schema:
               id: recipes
+          400:
+            description: Bad Request on recipe creation route
+          201:
+            description: Success in creating a recipe
+          404:
+            description: Category does not exist
         """
         regex_pattern = "[a-zA-Z- .]+$"
         category_id = id
@@ -131,6 +137,10 @@ class Recipe(MethodView):
             schema:
               id: recipes
               description: fetching a recipe
+          400:
+            description: Page Number or limit is not valid
+          200:
+            description: OK
         """
         page = None
         limit = None
@@ -139,7 +149,7 @@ class Recipe(MethodView):
                 page = 1
             page = int(request.args.get('page', 1))
         except Exception:
-            return {"message": "Page number not valid"}
+            return {"message": "Page number not valid"}, 400
 
         try:
             if not limit or limit is None or limit < 1 or not isinstance(limit, int):
@@ -202,6 +212,10 @@ class recipes_manipulation(MethodView):
             schema:
               id: recipes
               description: fetching a single recipe
+          404:
+            description: No recipe Found
+          200:
+            description: OK
         """
         recipe = Recipes.query.filter_by(category_id=id, id=recipe_id).first()
         if not recipe:
@@ -254,6 +268,12 @@ class recipes_manipulation(MethodView):
             schema:
               id: recipes
               description: editing a recipe
+          400:
+            description: Recipe Name, Ingredients or methods not provided or valid
+          404:
+            description: No recipe found
+          201:
+            description: Successfully edited a recipe
         """
         regex_pattern = "[a-zA-Z- .]+$"
         category_id = id
@@ -326,6 +346,10 @@ class recipes_manipulation(MethodView):
         responses:
           200:
             description: Successfully deleted a category
+          404:
+            description: No recipe found
+          200:
+            description: OK
         """
         recipe = Recipes.query.filter_by(category_id=id, id=recipe_id).first()
         if not recipe:
@@ -379,6 +403,10 @@ class recipeSearch(MethodView):
             schema:
               id: recipes
               description: fetching a single recipe
+          400:
+            description: Page or page limit is not valid
+          200:
+            description: OK
         """
         search = request.args.get('q', '')
         page = None

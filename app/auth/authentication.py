@@ -100,6 +100,7 @@ class userRegister(MethodView):
                     except Exception as e:
                         response = {'message': "User Exists, Kindly Login"}
                         return make_response(jsonify(response)), 409
+
                     return make_response(jsonify(response)), 201
                 except Exception as e:
                     response = {'message': str(e)}
@@ -139,12 +140,11 @@ class userLogin(MethodView):
          200:
           schema:
             id: login
-
-        401:
+         401:
             description: Invalid Login Details
-        422:
+         422:
             description: Kindly Provide email and password
-        400:
+         400:
             description: Bad Requests
         """
         try:
@@ -263,6 +263,10 @@ class userLogout(MethodView):
         responses:
           200:
             description: Successfully logged out
+          401:
+            description: User not authenticated
+          400:
+            description: Bad Request
 
         """
         access_token = request.headers.get('Authorization')

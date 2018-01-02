@@ -14,7 +14,7 @@ class Category(MethodView):
     decorators = [token_required]
 
     def post(self, current_user):
-        """"Method to add a new category to the endpoint
+        """Method to add a new category to the endpoint
         ---
         tags:
             - Categories
@@ -51,7 +51,7 @@ class Category(MethodView):
           400:
             description: category name exists
           401:
-            description: category not created
+            description: category not created because user is unauthenticated
           201:
             description: category created
         """
@@ -92,7 +92,7 @@ class Category(MethodView):
         return response
 
     def get(self, current_user):
-        """"Method to get all categories of a user
+        """Method to get all categories of a user in a paginated way
         ---
         tags:
             - Categories
@@ -105,7 +105,6 @@ class Category(MethodView):
           - in: path
         responses:
           200:
-            description: Display all the categories of a user
             schema:
               id: Categories
               properties:
@@ -124,6 +123,15 @@ class Category(MethodView):
                     id:
                      type: integer
                      default: 1
+
+          400:
+            description: Limit number not valid
+          400:
+            description: Limit number not valid
+          400:
+            description: Page number not valid
+          404:
+            description: No category found
         """
         page = None
         limit = None
@@ -206,6 +214,10 @@ class CategoriesManipulation(MethodView):
                     id:
                      type: integer
                      default: 1
+          404:
+            description: No category found
+          200:
+            description: OK
 
         """
         category = Categories.query.filter_by(
@@ -273,6 +285,12 @@ class CategoriesManipulation(MethodView):
                     id:
                      type: integer
                      default: 1
+          400:
+            description: Bad Requests on category edit route
+          404:
+            description: Category does not exist
+          200:
+            description: OK
         """
         regex_pattern = "[a-zA-Z- .]+$"
 
@@ -341,7 +359,10 @@ class CategoriesManipulation(MethodView):
                     message:
                      type: json
                      default: category name deleted
-
+          404:
+            description: Category does not exist
+          200:
+            description: Category Deleted
         """
         category = Categories.query.filter_by(
             id=id, created_by=current_user.id).first()
@@ -409,6 +430,10 @@ class CategorySearch(MethodView):
                     id:
                      type: integer
                      default: 1
+          400:
+            description: Bad Requests on search route
+          200:
+            description: OK
         """
         search = request.args.get('q', '')
         page = None
