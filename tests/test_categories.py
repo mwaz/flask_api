@@ -240,7 +240,7 @@ class CategoriesTestCase(unittest.TestCase):
                                              headers=dict(Authorization=self.access_token),)
         self.assertEqual(delete_result.status_code, 200)
 
-    def test_categories_deletion(self):
+    def test_categories_double_deletion(self):
         """test API can not delete a recipe category twice
         """
         create_category = self.client().post(base_url + 'categories/', headers=dict(
