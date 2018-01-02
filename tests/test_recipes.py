@@ -55,7 +55,7 @@ class RecipesTestCase(unittest.TestCase):
             self.login_data.data.decode())['access_token']
 
         # create a category
-        create_category = self.client().post(base_url + '/categories/',
+        self.client().post(base_url + '/categories/',
                                              headers=dict(
                                                  Authorization=self.access_token),
                                              data=self.categories)
