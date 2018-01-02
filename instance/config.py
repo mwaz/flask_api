@@ -21,7 +21,9 @@ class TestingConfig(Config):
     """
     TESTING = True
     # SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:@localhost:5432/test_db'
-    SQLALCHEMY_DATABASE_URI = os.environ('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',
+        'postgresql://postgres:@localhost:5432/test_db')
+    # environ('DATABASE_URL')
     DEBUG = True
 
 class StagingConfig(Config):
@@ -32,7 +34,8 @@ class StagingConfig(Config):
 class ProductionConfig(Config):
     """Configurations for Production
     """
-    SQLALCHEMY_DATABASE_URI = os.environ('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',
+                                        'postgresql://postgres:@localhost:5432/flask_api')
     DEBUG = False
     TESTING = False
 
