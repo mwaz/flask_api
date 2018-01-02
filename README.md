@@ -1,3 +1,6 @@
+[![Coverage Status](https://coveralls.io/repos/github/mwaz/flask_api/badge.svg?branch=develop)](https://coveralls.io/github/mwaz/flask_api?branch=develop)[![Build Status](https://travis-ci.org/mwaz/flask_api.svg?branch=develop)](https://travis-ci.org/mwaz/flask_api)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6fb4d5ea061346429bfdb9a9ac62f55c)](https://www.codacy.com/app/mwaz/flask_api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mwaz/flask_api&amp;utm_campaign=Badge_Grade)
+
 # Yummy Recipes Application API
 Challenge 3: A Flask API that enables one to create a recipe category, add, delete and update a category
 API also allows one to create recipes, update delete them using API endpoints
