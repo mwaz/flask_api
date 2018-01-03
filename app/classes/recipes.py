@@ -173,6 +173,10 @@ class Recipe(MethodView):
                          }
 
             results.append(recipe_obj)
+        if len(results) <= 0:
+            response = {'message': 'No  recipe found '}
+            response = make_response(jsonify(response)), 404
+            return response
         response = jsonify(results)
         response.status_code = 200
         return response
