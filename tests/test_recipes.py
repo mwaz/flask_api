@@ -167,7 +167,7 @@ class RecipesTestCase(unittest.TestCase):
                                                    data=self.other_recipes)
         self.assertEqual(create_another_recipe.status_code, 201)
 
-        get_created_recipe = self.client().get(base_url + '/categories/1/recipes/?page&limit',
+        get_created_recipe = self.client().get(base_url + '/categories/1/recipes/?page=1&limit=1',
                                                headers=dict(Authorization=self.access_token))
         self.assertEqual(get_created_recipe.status_code, 200)
 
