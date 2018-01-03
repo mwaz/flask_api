@@ -22,7 +22,6 @@ class Category(MethodView):
             - application/json
         security:
           - TokenHeader: []
-
         parameters:
             - in: body
               name: Category Name
@@ -100,7 +99,6 @@ class Category(MethodView):
             - application/json
         security:
           - TokenHeader: []
-          - TokenParameter: []
         parameter:
           - in: path
         responses:
@@ -133,19 +131,18 @@ class Category(MethodView):
           404:
             description: No category found
         """
-        page = None
-        limit = None
         try:
+            page = int(request.args.get('page', default=1))
             if not page or page is None or page < 1 or not isinstance(page, int):
                 page = 1
-            page = int(request.args.get('page', 1))
         except Exception:
             return {"message": "Page number not valid"}, 400
 
         try:
+            limit = int(request.args.get('limit', default=10))
             if not limit or limit is None or limit < 1 or not isinstance(limit, int):
                 limit = 10
-            limit = int(request.args.get('limit', 10))
+
         except Exception:
             return {"message": "Limit is not a valid number "}, 400
 
@@ -192,7 +189,6 @@ class CategoriesManipulation(MethodView):
             type: string
         security:
           - TokenHeader: []
-          - TokenParameter: []
         responses:
           200:
             description: Display all the categories of a user
@@ -263,7 +259,6 @@ class CategoriesManipulation(MethodView):
                      default: breakfast
         security:
           - TokenHeader: []
-          - TokenParameter: []
         responses:
           200:
             description: Edit a user category
@@ -350,7 +345,6 @@ class CategoriesManipulation(MethodView):
             type: string
         security:
           - TokenHeader: []
-          - TokenParameter: []
         responses:
           200:
             description: delete a user category
@@ -408,7 +402,6 @@ class CategorySearch(MethodView):
 
         security:
           - TokenHeader: []
-          - TokenParameter: []
         responses:
           200:
             description: Search for a particular category

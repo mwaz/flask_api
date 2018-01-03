@@ -116,8 +116,6 @@ class Recipe(MethodView):
             - application/json
         security:
           - TokenHeader: []
-          - TokenParameter: []
-
         parameters:
             - in: path
               name: id
@@ -197,8 +195,6 @@ class recipes_manipulation(MethodView):
             - application/json
         security:
           - TokenHeader: []
-          - TokenParameter: []
-
         parameters:
             - in: path
               name: id
@@ -247,8 +243,6 @@ class recipes_manipulation(MethodView):
             - application/json
         security:
           - TokenHeader: []
-          - TokenParameter: []
-
         parameters:
             - in: path
               name: id
@@ -334,8 +328,6 @@ class recipes_manipulation(MethodView):
             - application/json
         security:
           - TokenHeader: []
-          - TokenParameter: []
-
         parameters:
             - in: path
               name: id
@@ -383,8 +375,6 @@ class recipeSearch(MethodView):
           - application/json
         security:
           - TokenHeader: []
-          - TokenParameter: []
-
         parameters:
             - in: path
               name: id
