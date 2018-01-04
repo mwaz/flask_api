@@ -46,7 +46,7 @@ class userRegister(MethodView):
             400:
               description: Bad Requests
             """
-        regex_email = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        regex_email = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z-.]+$)"
         regex_username = "[a-zA-Z0-9- .]+$"
         try:
             user_details = User.query.filter_by(
@@ -94,7 +94,7 @@ class userRegister(MethodView):
 
                     try:
                         user = User(email=email, password=password,
-                                username=username, secret_word=secret)
+                                    username=username, secret_word=secret)
                         user.save()
                         response = {'message': "Successfully registered"}
                     except Exception as e:
@@ -173,6 +173,7 @@ class userLogin(MethodView):
         except Exception as e:
             response = {'message': 'Error occurred on user login'}
             return make_response(jsonify(response)), 400
+
 
 class userPasswordReset(MethodView):
     """Class to allow user to reset password
@@ -279,6 +280,7 @@ class userLogout(MethodView):
         })
         response.status_code = 200
         return response
+
 
 user_password_reset_view = userPasswordReset.as_view('user_password_reset_view')
 user_registration_view = userRegister.as_view('user_registration_view')
