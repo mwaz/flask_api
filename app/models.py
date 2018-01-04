@@ -5,7 +5,6 @@ from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta
 import jwt
 import os
-from instance.config import Config
 
 
 class User(db.Model):

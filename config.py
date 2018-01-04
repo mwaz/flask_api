@@ -2,6 +2,7 @@
 """
 import os
 
+
 class Config(object):
     """Parent configuration class
     """
@@ -10,11 +11,13 @@ class Config(object):
     SECRET = os.getenv('SECRET', '#%$#%$^FDFGFGdf')
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:@localhost:5432/flask_api'
 
+
 class DevelopmentConfig(Config):
     """Configurations for Development
     """
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:@localhost:5432/flask_api'
+
 
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database
@@ -26,10 +29,12 @@ class TestingConfig(Config):
     # environ('DATABASE_URL')
     DEBUG = True
 
+
 class StagingConfig(Config):
     """Configurations for Staging
     """
     DEBUG = True
+
 
 class ProductionConfig(Config):
     """Configurations for Production
@@ -38,6 +43,7 @@ class ProductionConfig(Config):
                                         'postgresql://postgres:@localhost:5432/flask_api')
     DEBUG = False
     TESTING = False
+
 
 #Dictionary to store the settings according to the different configurations selected by the user
 app_config = {
