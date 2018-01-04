@@ -171,7 +171,7 @@ class Recipe(MethodView):
         return response
 
 
-class recipes_manipulation(MethodView):
+class ManipulateRecipes(MethodView):
     """Class to handle GET, PUT and DELETE for individual recipes in a category
     """
     methods = ['GET', 'PUT', 'DELETE']
@@ -351,7 +351,7 @@ class recipes_manipulation(MethodView):
             return response
 
 
-class recipeSearch(MethodView):
+class SearchRecipe(MethodView):
     """Class to search a recipe in a particular category
     """
     methods = ['GET']
@@ -426,7 +426,7 @@ class recipeSearch(MethodView):
             return make_response(jsonify(response)), 200
 
 
-recipe_search_view = recipeSearch.as_view('recipe_search_view')
+recipe_search_view = SearchRecipe.as_view('recipe_search_view')
 recipe_post_get_view = Recipe.as_view('recipe_post_get_view')
-recipe_manipulation_view = recipes_manipulation.as_view(
+recipe_manipulation_view = ManipulateRecipes.as_view(
     'recipe_manipulation_view')
