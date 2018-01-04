@@ -46,7 +46,7 @@ class userRegister(MethodView):
             400:
               description: Bad Requests
             """
-        regex_email = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        regex_email = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z-.]+$)"
         regex_username = "[a-zA-Z0-9- .]+$"
         try:
             user_details = User.query.filter_by(

@@ -56,7 +56,7 @@ class Recipe(MethodView):
           404:
             description: Category does not exist
         """
-        regex_pattern = "[a-zA-Z- .]+$"
+        regex_pattern = "[a-zA-Z0-9- .]+$"
         category_id = id
         if category_id:
             try:
@@ -140,25 +140,13 @@ class Recipe(MethodView):
           200:
             description: OK
         """
-        page = None
-        limit = None
-        try:
-            if not page or page is None or page < 1 or not isinstance(page, int):
-                page = 1
-            page = int(request.args.get('page', 1))
-        except Exception:
-            return {"message": "Page number not valid"}, 400
 
-        try:
-            if not limit or limit is None or limit < 1 or not isinstance(limit, int):
-                limit = 10
-            limit = int(request.args.get('limit', 10))
-        except Exception:
-            return {"message": "Limit is not a valid number "}, 400
+        page = request.args.get('page', default=1, type=int)
+        limit = request.args.get('limit', default=10, type=int)
 
         category_id = id
         recipes = Recipes.get_all_user_recipes(
-            category_id).paginate(page, limit)
+            category_id).paginate(page, limit, error_out=False)
         results = []
         for recipe in recipes.items:
             recipe_obj = {'id': recipe.id,
@@ -167,7 +155,10 @@ class Recipe(MethodView):
                           'recipe_methods': recipe.recipe_methods,
                           'category_id': recipe.category_id,
                           'date_created': recipe.date_created,
-                          'date_modified': recipe.date_modified
+                          'date_modified': recipe.date_modified,
+                          'previous_page': recipes.prev_num,
+                          'next_Page': recipes.next_num
+
                          }
 
             results.append(recipe_obj)
@@ -273,7 +264,7 @@ class recipes_manipulation(MethodView):
           201:
             description: Successfully edited a recipe
         """
-        regex_pattern = "[a-zA-Z- .]+$"
+        regex_pattern = "[a-zA-Z0-9- .]+$"
         category_id = id
         recipe = Recipes.query.filter_by(
             category_id=category_id, id=recipe_id).first()
@@ -375,6 +366,8 @@ class recipeSearch(MethodView):
           - application/json
         security:
           - TokenHeader: []
+
+
         parameters:
             - in: path
               name: id
@@ -403,27 +396,14 @@ class recipeSearch(MethodView):
             description: OK
         """
         search = request.args.get('q', '')
-        page = None
-        limit = None
-        try:
-            if not page or page is None or page < 1 or not isinstance(page, int):
-                page = 1
-            page = int(request.args.get('page', 1))
-        except Exception:
-            return {"message": "Page number not valid"}
-
-        try:
-            if not limit or limit is None or limit < 1 or not isinstance(limit, int):
-                limit = 10
-            limit = int(request.args.get('limit', 10))
-        except Exception:
-            return {"message": "Limit is not a valid number "}, 400
+        page = request.args.get('page', default=1, type=int)
+        limit = request.args.get('limit', default=10, type=int)
 
         if search:
             category_id = id
             recipes = Recipes.query.filter(Recipes.recipe_name.ilike(
                 '%' + search + '%')).filter(Recipes.category_id == category_id).paginate(
-                    per_page=limit, page=page)
+                    per_page=limit, page=page, error_out=False)
             results = []
             for recipe in recipes.items:
                 recipe_obj = {'id': recipe.id,
@@ -432,7 +412,9 @@ class recipeSearch(MethodView):
                               'recipe_methods': recipe.recipe_methods,
                               'category_id': recipe.category_id,
                               'date_created': recipe.date_created,
-                              'date_modified': recipe.date_modified
+                              'date_modified': recipe.date_modified,
+                              'previous_page': recipes.prev_num,
+                              'next_Page': recipes.next_num
                              }
 
                 results.append(recipe_obj)
