@@ -12,24 +12,11 @@ class User(db.Model):
     """The class defines the users table"""
 
     __tablename__ = 'users'
-
-    """
-    Table columns:
-    id - defines the unique key to identify a particular user in the users table
-    email - defines email field of a user
-    password - defines the password belonging to a user
-    """
-
     id = db.Column(db.Integer, primary_key=True)
-
     email = db.Column(db.String(256), nullable=False, unique=True)
-
     username = db.Column(db.String(256))
-
     secret_word = db.Column(db.String(256))
-
     password = db.Column(db.String(256), nullable=False)
-
     # Delete all the categories that belong to a user if the owner is deleted from the db
     categories = db.relationship(
         'Categories', order_by='Categories.id', cascade="all, delete-orphan")
@@ -40,7 +27,6 @@ class User(db.Model):
         variables, username, password, secret_word and email
         """
         self.email = email
-        # generates password hash using 'BYCRYPT'
         self.password = Bcrypt().generate_password_hash(password).decode()
         self.username = username
         self.secret_word = Bcrypt().generate_password_hash(secret_word).decode()
@@ -71,17 +57,17 @@ class User(db.Model):
     def password_hash(password):
         """method to hash provided password
         """
-        # generates password hash using 'BYCRYPT'
         password = Bcrypt().generate_password_hash(password).decode()
         return password
 
-    def user_token_generator(self, user_id):
+    @staticmethod
+    def user_token_generator(user_id):
         """" Method to generate a token for user identification """
         app_secret = os.getenv('SECRET', '#%$#%$^FDFGFGdf')
         try:
             # set up a payload with an expiration time
             token_payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=30),
+                'exp': datetime.utcnow() + timedelta(hours=4),
                 'iat': datetime.utcnow(),
                 'usr': user_id
             }
@@ -116,7 +102,6 @@ class Categories(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)  # primary key
     category_name = db.Column(db.String(256), nullable=False)
-
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
@@ -149,7 +134,7 @@ class Categories(db.Model):
         return Categories.query.filter_by(created_by=user_id)
 
     def delete_categories(self):
-        """ This method deletes a recipe category belonging to a user """
+        """This method deletes a recipe category belonging to a user"""
         db.session.delete(self)
         db.session.commit()
 
@@ -159,10 +144,9 @@ class Categories(db.Model):
 
 
 class Recipes(db.Model):
-    """ Class to define the recipe categories table layout in the db """
+    """Class to define the recipe categories table layout in the db"""
 
     __tablename__ = 'recipes'
-
     id = db.Column(db.Integer, primary_key=True)  # primary key
     recipe_name = db.Column(db.String(256), nullable=False)
     recipe_ingredients = db.Column(db.String(256), nullable=False)
@@ -214,15 +198,14 @@ class Sessions(db.Model):
     __tablename__ = 'token_blacklist'
     id = db.Column(db.Integer, primary_key=True)
     auth_token = db.Column(db.String(256), nullable=False, unique=True)
-
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     def __init__(self, auth_token):
-        """Constructorm method for sesions class
+        """Constructor method for sesions class
         """
         self.auth_token = auth_token
 
-    def check_logout_status(auth_token):
+    def check_logout_status(self, auth_token):
         """Method to check if a user is logged out
         """
         logout_state = Sessions.query.filter_by(auth_token=auth_token).first()
@@ -235,4 +218,4 @@ class Sessions(db.Model):
         """Method to save the sessions or to update the db sessions
         """
         db.session.add(self)
-        db.session.commit
+        db.session.commit()
