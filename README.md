@@ -10,52 +10,71 @@ Find Heroku App [here][]
 
 [here]: https://yummy-recipies-api.herokuapp.com/
 
-# Installation and Setup
+# Requirements
 
-Clone the repo
+* python 3 
+* Postgres Database Engine
 
-git clone https://github.com/mwaz/flask_api.git
+
+# Installation
+
+1 Clone the Github Repositorty'
 
 use ssh
 
-    git@github.com:mwaz/flask_api.git
+   ```
+   $ git clone https://github.com/mwaz/flask_api.git
+   ```
+      
+2 Install the Database Engine and Pip
 
-go to the root folder
-
-cd flask_api
-
-Create the virtual environment
-
-$virtualenv venv
-
-Activate the virtual environment
-
-$source venv/bin/activate
-
-# Install the requirements
-
-$pip install -r requirements.txt
-
-Set Up Environment
+  ```
+  $ sudo apt-get install python3-pip python3-dev libpq-dev
+  ```
 
 
-# Run Database Migrations
+4 Create the PostgreSQL Database and User
 
- Initialize, migrate, upgrade the database
+```
+   $ sudo -u postgres psql
+   $ sudo -u postgres createuser postgres
+   $ sudo -u postgres createdb flask_api
+   
+   postgres=# GRANT ALL PRIVILEGES ON DATABASE flask_api TO postgres;
+```
 
-$python manage.py db init
+5 Create  and run database migrations
 
-$python manage.py db migrate
+```
+$ python manage.py db init
+$ python manage.py db migrate
+$ python manage.py db upgrade
+```
 
-$python manage.py db upgrade
+6 Set Up and activate a virtual environment
+```
+$ virtualenv venv
+$ source venv/bin/activate
+```
 
-Launch the Progam
+7 Install all application requirements using requirements.txt
 
-# Run
+```
+  $ pip install -r requirements.txt
+```
 
-$python run.py
+8 Run the Application
 
-Interact with the API, send http requests using Postman
+```
+$ python run.py
+```
+Interact with the API :-), send http requests using Postman
+
+
+# Screenshot
+
+![image](https://user-images.githubusercontent.com/10160787/34572706-1a33447e-f183-11e7-822e-550658989ad1.png)
+
 
 ## User API Endpoints
 
