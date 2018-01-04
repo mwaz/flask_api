@@ -72,7 +72,7 @@ Interact with the API: -), send http requests using Postman
 
 # Screenshot
 
-![image](https: // user - images.githubusercontent.com / 10160787 / 34572706 - 1a33447e - f183 - 11e7 - 822e-550658989ad1.png)
+![image](https://user-images.githubusercontent.com/10160787/34572706-1a33447e-f183-11e7-822e-550658989ad1.png)
 
 ## User API Endpoints
 
