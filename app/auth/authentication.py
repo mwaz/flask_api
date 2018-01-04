@@ -3,7 +3,7 @@
 from app.decorators import token_required
 from app.models import User, Sessions
 import re
-from flask import request, jsonify, abort, make_response
+from flask import request, jsonify, make_response
 from flask.views import MethodView
 from app import db
 
