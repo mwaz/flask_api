@@ -23,13 +23,13 @@ Find Heroku App [here] []
 use ssh
 
    ```
-   $ git clone https: // github.com / mwaz / flask_api.git
+   $ git clone https://github.com/mwaz/flask_api.git
    ```
 
 2 Install the Database Engine and Pip
 
   ```
-  $ sudo apt - get install python3 - pip python3 - dev libpq - dev
+  $ sudo apt - get install python3-pip python3-dev libpq-dev
   ```
 
 
@@ -54,13 +54,13 @@ $ python manage.py db upgrade
 6 Set Up and activate a virtual environment
 ```
 $ virtualenv venv
-$ source venv / bin / activate
+$ source venv/bin/activate
 ```
 
 7 Install all application requirements using requirements.txt
 
 ```
-  $ pip install - r requirements.txt
+  $ pip install -r requirements.txt
 ```
 
 8 Run the Application
