@@ -4,7 +4,7 @@ from flasgger import Swagger
 
 
 # local import
-from instance.config import app_config
+from config import app_config
 
 # initialize sql-alchemy
 db = SQLAlchemy()
@@ -18,14 +18,14 @@ def make_app(config_name):
     app = FlaskAPI(__name__, instance_relative_config=True)
 
     app.config.from_object(app_config['testing'])
-    app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
-    app.config['SWAGGER'] = { "swagger": "2.0",
-                              "title": "Yummy Recipes",
+    app.config['SWAGGER'] = {"swagger": "2.0",
+                             "title": "Yummy Recipes",
                              "info": {
                                  "title": "Yummy Recipes API documentation",
-                                 "description": "Yummy Recipes provides a way to create recipes and their categories and to manipulate them ",
+                                 "description": "Yummy Recipes provides a way to create recipes and their categories"
+                                                " and to manipulate them ",
                                  "version": "1.0.0",
                                  "basepath": '/',
                                  "uiversion": 3,
