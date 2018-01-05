@@ -56,10 +56,10 @@ def password_reset_validation(email, reset_password, secret):
         error = ValidationError('Kindly provide a reset Password')
 
     if not email:
-        error = ValidationError('Invalid user email ')
+        error = ValidationError('Invalid user email')
 
     if not secret:
-        error = ValidationError('Invalid Secret Word ')
+        error = ValidationError('Invalid Secret Word')
 
     if error:
         raise error
