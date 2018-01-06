@@ -76,30 +76,31 @@ Interact with the API: -), send http requests using Postman
 
 ## User API Endpoints
 
-    URL Endpoint | HTTP requests | access | status |
-    ---------------- | ----------------- | ------------- | ------------------
-    / flask_api / v1 / auth / register | POST | Register a new user | publc
-    / flask_api / v1 / auth / login | POST | Login and retrieve token | public
+|URL Endpoint    |HTTP requests    |access       |status|
+---------------- | ----------------- | ------------- | ------------------
+|/flask_api/v1/auth/register | POST | Register a new user | public|
+|/flask_api/v1/auth/login | POST | Login and retrieve token | public|
+
 
 ## Categories  API Endpoints
 
-    URL Endpoint | HTTP requests | access | status |
-    ---------------- | ----------------- | ------------- | ------------------
-    / flask_api / v1 / categories / |      POST | Create a new recipe category | private
-    / flask_api / v1 / categories / |      GET | Retrieve all categories for user | private
-    / flask_api / v1 / categories / search /?q= & limit & page	              |      GET	|  Retrieve all categories for a given search | private
-    / flask_api / v1 / categories / <category_id > / | GET | Retrieve a category by ID | private
-    / flask_api / v1 / categories / <category_id > / | PUT | Update a category | private
-    / flask_api / v1 / categories / <category_id > / | DELETE | Delete a category | private
+URL Endpoint    | HTTP requests   | access      | status |
+---------------- | ----------------- | ------------- | ------------------
+/flask_api/v1/categories/ |      POST | Create a new recipe category | private
+/flask_api/v1/categories/ |      GET | Retrieve all categories for user | private
+/flask_api/v1/categories/search/?q= & limit & page	    |      GET	|  Retrieve all categories for a given search | private
+/flask_api/v1/categories/<category_id>/ | GET | Retrieve a category by ID | private
+/flask_api/v1/categories/<category_id>/ | PUT | Update a category | private
+/flask_api/v1/categories/<category_id>/ | DELETE | Delete a category | private
 
 ## Recipes  API Endpoints
 
-    URL Endpoint | HTTP requests | access | status |
-    ---------------- | ----------------- | ------------- | ------------------
-    / flask_api / v1 / categories / <category_id > /recipes / |  GET | Retrive recipes in a given category | private
-    / flask_api / v1 / categories / <category_id > /recipes / |     POST | Create recipes in a category | private
-    / flask_api / v1 / categories / <category_id > /recipes / search /?q= & limit & page  |      GET	| Retrieve all recipes for a given search | private
-    / flask_api / v1 / categories / <category_id > /recipes / <recipe_id > / | DELETE | Delete a recipe in a category | private
-    / flask_api / v1 / categories / <category_id > /recipes / <recipe_id > / | PUT | update recipe details | private
+URL Endpoint | HTTP requests | access | status |
+---------------- | ----------------- | ------------- | ------------------
+/flask_api/v1/categories/<category_id>/recipes/ |  GET | Retrive recipes in a given category | private
+/flask_api/v1/categories/<category_id>/recipes/ |     POST | Create recipes in a category | private
+/flask_api/v1/categories/<category_id>/recipes/search/?q=&limit&page  |      GET	| Retrieve all recipes for a given search | private
+/flask_api/v1/categories/<category_id>/recipes/<recipe_id>/| DELETE | Delete a recipe in a category | private
+/flask_api/v1/categories/<category_id>/recipes/<recipe_id>/ | PUT | update recipe details | private
 
 Run the APIs on postman to ensure they are fully functioning.
