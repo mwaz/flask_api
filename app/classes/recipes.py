@@ -77,7 +77,8 @@ class Recipe(MethodView):
                     category_id=category_id, recipe_name=recipe_name).first()
 
                 if recipe_details:
-                    response = {'message': 'Recipe name exists'}
+                    response = {'message': 'Recipe name exists',
+                                'status': 'fail'}
                     return make_response(jsonify(response)), 400
                 recipe.save()
                 response = {'id': recipe.id,
@@ -92,7 +93,8 @@ class Recipe(MethodView):
                 return response
 
             except Exception:
-                response = {'message': 'Category does not exist'}
+                response = {'message': 'Category does not exist',
+                            'status': 'error'}
                 return make_response(jsonify(response)), 404
 
     def get(self, current_user, id):
@@ -151,7 +153,8 @@ class Recipe(MethodView):
 
             results.append(recipe_obj)
         if len(results) <= 0:
-            response = {'message': 'No  recipe found '}
+            response = {'message': 'No  recipe found ',
+                        'status': 'error'}
             response = make_response(jsonify(response)), 404
             return response
         response = jsonify(results)
@@ -198,7 +201,8 @@ class ManipulateRecipes(MethodView):
         """
         recipe = Recipes.query.filter_by(category_id=id, id=recipe_id).first()
         if not recipe:
-            response = {'message': 'No recipe found'}
+            response = {'message': 'No recipe found',
+                        'status': 'error'}
             response = make_response(jsonify(response)), 404
             return response
         else:
@@ -262,7 +266,8 @@ class ManipulateRecipes(MethodView):
             recipe_validation(recipe_name,recipe_methods, recipe_ingredients)
 
             if not recipe:
-                response = {'message': 'No recipe found'}
+                response = {'message': 'No recipe found',
+                            'status': 'error'}
                 response = make_response(jsonify(response)), 404
                 return response
             else:
@@ -314,13 +319,16 @@ class ManipulateRecipes(MethodView):
         """
         recipe = Recipes.query.filter_by(category_id=id, id=recipe_id).first()
         if not recipe:
-            response = {'message': 'No recipe found'}
+            response = {'message': 'No recipe found',
+                        'status': 'error'}
             response = make_response(jsonify(response)), 404
             return response
         else:
             recipe.delete_recipes()
             response = {
-                "message": "successfully deleted category".format(recipe.id)}
+                "message": "successfully deleted recipe",
+                'status': 'success',
+                "recipe_id": 'Deleted recipe {} ' .format(recipe.id)}
             response = make_response(jsonify(response)), 200
             return response
 
@@ -396,7 +404,8 @@ class SearchRecipe(MethodView):
             response.status_code = 200
             return response
         else:
-            response = {'message': 'No search item provided'}
+            response = {'message': 'No search item provided',
+                        'status': 'error'}
             return make_response(jsonify(response)), 200
 
 
