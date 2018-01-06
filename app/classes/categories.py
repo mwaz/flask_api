@@ -1,11 +1,10 @@
 """Class to handle category creation, viewing and manipulation
 """
-import re
 from app.helpers.decorators import token_required
 from app.models import Categories
 from flask import request, jsonify, make_response
 from flask.views import MethodView
-from app.helpers.category_validators import create_category_validation, update_category_validation
+from app.helpers.category_validators import category_validation
 
 
 class Category(MethodView):
@@ -60,7 +59,7 @@ class Category(MethodView):
             category_name = str(request.data.get('category_name', ''))
             category_details = Categories.query.filter_by(
                     category_name=category_name, created_by=current_user.id).first()
-            create_category_validation(category_name)
+            category_validation(category_name)
             if category_details:
                 response = {'message': 'Category name exists'}
                 return make_response(jsonify(response)), 400
@@ -278,11 +277,11 @@ class ManipulateCategory(MethodView):
             category = Categories.query.filter_by(
                 id=id, created_by=current_user.id).first()
             category_name = str(request.data.get('category_name', ''))
-            update_category_validation(category_name)
+            category_validation(category_name)
+
             if not category:
                 response = {'message': 'Category does not exist'}
                 return make_response(jsonify(response)), 404
-
 
             category_details = Categories.query.filter_by(
                 category_name=category_name, created_by=current_user.id).first()
