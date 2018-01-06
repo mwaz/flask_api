@@ -204,7 +204,8 @@ class Sessions(db.Model):
         """
         self.auth_token = auth_token
 
-    def check_logout_status(self, auth_token):
+    @staticmethod
+    def check_logout_status(auth_token):
         """Method to check if a user is logged out
         """
         logout_state = Sessions.query.filter_by(auth_token=auth_token).first()
