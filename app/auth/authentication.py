@@ -114,7 +114,7 @@ class LoginUser(MethodView):
         try:
             email = request.data['email']
             password = request.data['password']
-            user_details = User.query.filter(email=email).first()
+            user_details = User.query.filter_by(email=email).first()
             user_login_validation(email, password)
 
             if user_details and user_details.password_check(password):
