@@ -2,10 +2,11 @@
 """
 
 import re
-from app.decorators import token_required
+from app.helpers.decorators import token_required
 from app.models import Recipes
 from flask import request, jsonify, make_response
 from flask.views import MethodView
+from app.helpers.recipe_validators import recipe_validation
 
 
 class Recipe(MethodView):
@@ -56,7 +57,6 @@ class Recipe(MethodView):
           404:
             description: Category does not exist
         """
-        regex_pattern = "[a-zA-Z0-9- .]+$"
         category_id = id
         if category_id:
             try:
@@ -64,25 +64,7 @@ class Recipe(MethodView):
                 recipe_ingredients = request.data.get('recipe_ingredients', '')
                 recipe_methods = request.data.get('recipe_methods', '')
 
-                if recipe_name:
-                    recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
-                recipe_name = None if recipe_name == "" else recipe_name.title()
-
-                if not recipe_name:
-                    response = {'message': 'Recipe name not provided'}
-                    return make_response(jsonify(response)), 400
-                if not recipe_ingredients:
-                    response = {'message': 'Recipe ingredients not provided'}
-                    return make_response(jsonify(response)), 400
-                if not recipe_methods:
-                    response = {
-                        'message': 'Recipe preparation methods not provided'}
-                    return make_response(jsonify(response)), 400
-
-                if not re.search(regex_pattern, recipe_name):
-                    response = {'message': 'Recipe name is not valid'}
-                    return make_response(jsonify(response)), 400
-
+                recipe_validation(recipe_name, recipe_methods, recipe_ingredients)
                 recipe = Recipes(recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
                                  recipe_methods=recipe_methods, category_id=category_id)
                 recipe_details = Recipes.query.filter_by(
@@ -264,51 +246,37 @@ class ManipulateRecipes(MethodView):
           201:
             description: Successfully edited a recipe
         """
-        regex_pattern = "[a-zA-Z0-9- .]+$"
-        category_id = id
-        recipe = Recipes.query.filter_by(
-            category_id=category_id, id=recipe_id).first()
-        recipe_name = str(request.data.get('recipe_name', ''))
-        recipe_ingredients = str(request.data.get('recipe_ingredients', ''))
-        recipe_methods = str(request.data.get('recipe_methods', ''))
+        try:
+            category_id = id
+            recipe = Recipes.query.filter_by(
+                category_id=category_id, id=recipe_id).first()
+            recipe_name = str(request.data.get('recipe_name', ''))
+            recipe_ingredients = str(request.data.get('recipe_ingredients', ''))
+            recipe_methods = str(request.data.get('recipe_methods', ''))
+            recipe_validation(recipe_name,recipe_methods, recipe_ingredients)
 
-        if recipe_name:
-            recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
-        recipe_name = None if recipe_name == "" else recipe_name.title()
-
-        if not recipe_name:
-            response = {'message': 'Recipe name not provided'}
+            if not recipe:
+                response = {'message': 'No recipe found'}
+                response = make_response(jsonify(response)), 404
+                return response
+            else:
+                recipe.recipe_name = recipe_name
+                recipe.recipe_ingredients = recipe_ingredients
+                recipe.recipe_methods = recipe_methods
+                recipe.save()
+                response = {'id': recipe.id,
+                            'recipe_name': recipe.recipe_name,
+                            'recipe_ingredients': recipe.recipe_ingredients,
+                            'recipe_methods': recipe.recipe_methods,
+                            'category_id': recipe.category_id,
+                            'date_created': recipe.date_created,
+                            'date_modified': recipe.date_modified
+                           }
+                response = make_response(jsonify(response)), 201
+                return response
+        except Exception as e:
+            response = {'message': str(e)}
             return make_response(jsonify(response)), 400
-        if not recipe_ingredients:
-            response = {'message': 'Recipe ingredients not provided'}
-            return make_response(jsonify(response)), 400
-        if not recipe_methods:
-            response = {'message': 'Recipe preparation methods not provided'}
-            return make_response(jsonify(response)), 400
-
-        if not re.search(regex_pattern, recipe_name):
-            response = {'message': 'Recipe name is not valid'}
-            return make_response(jsonify(response)), 400
-
-        if not recipe:
-            response = {'message': 'No recipe found'}
-            response = make_response(jsonify(response)), 404
-            return response
-        else:
-            recipe.recipe_name = recipe_name
-            recipe.recipe_ingredients = recipe_ingredients
-            recipe.recipe_methods = recipe_methods
-            recipe.save()
-            response = {'id': recipe.id,
-                        'recipe_name': recipe.recipe_name,
-                        'recipe_ingredients': recipe.recipe_ingredients,
-                        'recipe_methods': recipe.recipe_methods,
-                        'category_id': recipe.category_id,
-                        'date_created': recipe.date_created,
-                        'date_modified': recipe.date_modified
-                       }
-            response = make_response(jsonify(response)), 201
-            return response
 
     def delete(self, current_user, id, recipe_id):
         """Method to delete a recipe in a category
