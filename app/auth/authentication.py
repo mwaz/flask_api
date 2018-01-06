@@ -6,7 +6,7 @@ import re
 from flask import request, jsonify, make_response
 from flask.views import MethodView
 from app import db
-from app.helpers.validators import user_registration_validation, \
+from app.helpers.auth_validators import user_registration_validation, \
     user_login_validation, password_reset_validation
 
 
@@ -115,8 +115,9 @@ class LoginUser(MethodView):
         try:
             email = request.data['email']
             password = request.data['password']
-            user_details = User.query.filter_by(email=email).first()
+            user_details = User.query.filter_by(email==email).first()
             user_login_validation(email, password)
+
             if user_details and user_details.password_check(password):
                 access_token = user_details.user_token_generator(user_details.id)
 
