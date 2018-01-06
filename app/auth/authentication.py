@@ -3,12 +3,12 @@
 from app.decorators import token_required
 from app.models import User, Sessions
 import re
-from flask import request, jsonify, abort, make_response
+from flask import request, jsonify, make_response
 from flask.views import MethodView
 from app import db
 
 
-class userRegister(MethodView):
+class RegisterUser(MethodView):
     """ The class registers a new user
     """
     def post(self):
@@ -113,7 +113,7 @@ class userRegister(MethodView):
             return make_response(jsonify(response)), 400
 
 
-class userLogin(MethodView):
+class LoginUser(MethodView):
     """Class to login a user from the ...auth/login endpoint
     """
     def post(self):
@@ -175,7 +175,7 @@ class userLogin(MethodView):
             return make_response(jsonify(response)), 400
 
 
-class userPasswordReset(MethodView):
+class ResetUserPassword(MethodView):
     """Class to allow user to reset password
     """
     methods = ['PUT']
@@ -243,7 +243,8 @@ class userPasswordReset(MethodView):
             response = {'message': str(e)}
             return make_response(jsonify(response)), 400
 
-class userLogout(MethodView):
+
+class LogoutUser(MethodView):
     """Class to logout a particular user
     """
     methods = ['POST']
@@ -282,7 +283,7 @@ class userLogout(MethodView):
         return response
 
 
-user_password_reset_view = userPasswordReset.as_view('user_password_reset_view')
-user_registration_view = userRegister.as_view('user_registration_view')
-user_login_view = userLogin.as_view('user_login_view')
-user_logout_view = userLogout.as_view('user_logout_view')
+user_password_reset_view = ResetUserPassword.as_view('user_password_reset_view')
+user_registration_view = RegisterUser.as_view('user_registration_view')
+user_login_view = LoginUser.as_view('user_login_view')
+user_logout_view = LogoutUser.as_view('user_logout_view')

@@ -162,7 +162,7 @@ class Category(MethodView):
         return response
 
 
-class CategoriesManipulation(MethodView):
+class ManipulateCategory(MethodView):
     """Class to handle manipulation of categories using PUT, POST, DELETE and GET
     """
     methods = ['GET', 'PUT', 'DELETE']
@@ -365,7 +365,7 @@ class CategoriesManipulation(MethodView):
             }, 200
 
 
-class CategorySearch(MethodView):
+class SearchCategory(MethodView):
     """Class to search a category using pagination
     """
     methods = ['GET']
@@ -456,6 +456,6 @@ class CategorySearch(MethodView):
             return make_response(jsonify(response)), 200
 
 
-category_view_search = CategorySearch.as_view('category_view_search')
+category_view_search = SearchCategory.as_view('category_view_search')
 category_view_post = Category.as_view('category_view_post')
-category_manipulation = CategoriesManipulation.as_view('category_manipulation')
+category_manipulation = ManipulateCategory.as_view('category_manipulation')
