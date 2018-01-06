@@ -79,12 +79,12 @@ class RecipesTestCase(unittest.TestCase):
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
                                            headers=dict(Authorization=self.access_token),
-                                           data={"recipe_name": "",
+                                           data={"recipe_name": " ",
                                                  "recipe_ingredients": "milk",
                                                  "recipe_methods": "heat to boil"})
         self.assertEqual(create_recipe.status_code, 400)
         recipe_data = json.loads(create_recipe.data.decode())
-        self.assertIn(recipe_data['message'], 'Recipe name not provided')
+        self.assertIn(recipe_data['message'], 'Recipe name is not valid')
 
     def test_null_recipe_methods(self):
         """test if recipe methods are null
@@ -93,7 +93,7 @@ class RecipesTestCase(unittest.TestCase):
                                            headers=dict(Authorization=self.access_token),
                                            data={"recipe_name": "New Recipe",
                                                  "recipe_ingredients": "milk",
-                                                 "recipe_methods": ""})
+                                                 "recipe_methods": " "})
 
         self.assertEqual(create_recipe.status_code, 400)
         recipe_data = json.loads(create_recipe.data.decode())
@@ -119,12 +119,12 @@ class RecipesTestCase(unittest.TestCase):
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
                                            headers=dict(Authorization=self.access_token),
-                                           data={"recipe_name": "@@@",
+                                           data={"recipe_name": "",
                                                  "recipe_ingredients": "milk, water",
                                                  "recipe_methods": "heat to boil"})
-        self.assertEqual(create_recipe.status_code, 400)
         recipe_data = json.loads(create_recipe.data.decode())
         self.assertIn(recipe_data['message'], 'Recipe name is not valid')
+        self.assertEqual(create_recipe.status_code, 400)
 
     def test_duplicate_recipe(self):
         """test if recipe is duplicated
@@ -201,7 +201,7 @@ class RecipesTestCase(unittest.TestCase):
                                               'recipe_methods': 'boil to heat'})
         category_data = json.loads(edit_recipe.data.decode())
         self.assertEqual(edit_recipe.status_code, 400)
-        self.assertIn(category_data['message'], 'Recipe name not provided')
+        self.assertIn(category_data['message'], 'Recipe name is not valid')
 
     def test_to_edit_recipe_with_null_recipe_methods(self):
         """Test to edit a recipe name with null recipe methods

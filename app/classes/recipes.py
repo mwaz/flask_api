@@ -64,9 +64,15 @@ class Recipe(MethodView):
                 recipe_ingredients = request.data.get('recipe_ingredients', '')
                 recipe_methods = request.data.get('recipe_methods', '')
 
-                recipe_validation(recipe_name, recipe_methods, recipe_ingredients)
+                try:
+                    recipe_validation(recipe_name, recipe_methods, recipe_ingredients)
+                except Exception as e:
+                    response = {'message': str(e)}
+                    return make_response(jsonify(response)), 400
+
                 recipe = Recipes(recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
                                  recipe_methods=recipe_methods, category_id=category_id)
+
                 recipe_details = Recipes.query.filter_by(
                     category_id=category_id, recipe_name=recipe_name).first()
 
