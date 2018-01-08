@@ -29,7 +29,7 @@ class Category(MethodView):
               required: true
               type: string
               schema:
-                id: categories
+                id: categories create
                 properties:
                   category_name:
                     type: string
