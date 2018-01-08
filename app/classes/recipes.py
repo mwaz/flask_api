@@ -71,10 +71,10 @@ class Recipe(MethodView):
                     return make_response(jsonify(response)), 400
 
                 recipe = Recipes(recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
-                                 recipe_methods=recipe_methods, category_id=category_id)
+                                 recipe_methods=recipe_methods, category_id=category_id, created_by=current_user.id)
 
                 recipe_details = Recipes.query.filter_by(
-                    category_id=category_id, recipe_name=recipe_name).first()
+                    category_id=category_id, recipe_name=recipe_name, created_by=current_user.id).first()
 
                 if recipe_details:
                     response = {'message': 'Recipe name exists',
@@ -259,7 +259,7 @@ class ManipulateRecipes(MethodView):
         try:
             category_id = id
             recipe = Recipes.query.filter_by(
-                category_id=category_id, id=recipe_id).first()
+                category_id=category_id, id=recipe_id, created_by=current_user.id).first()
             recipe_name = str(request.data.get('recipe_name', ''))
             recipe_ingredients = str(request.data.get('recipe_ingredients', ''))
             recipe_methods = str(request.data.get('recipe_methods', ''))

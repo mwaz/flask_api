@@ -154,9 +154,10 @@ class Recipes(db.Model):
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
+    created_by = db.Column(db.Integer, db.ForeignKey(User.id))
     category_id = db.Column(db.Integer, db.ForeignKey(Categories.id))
 
-    def __init__(self, recipe_name, recipe_ingredients, recipe_methods, category_id):
+    def __init__(self, recipe_name, recipe_ingredients, recipe_methods, category_id, created_by):
         """
         Constructor to initialize the class variables, category
         name and the owner
@@ -165,6 +166,7 @@ class Recipes(db.Model):
         self.recipe_ingredients = recipe_ingredients
         self.recipe_methods = recipe_methods
         self.category_id = category_id
+        self.created_by = created_by
 
     def save(self):
         """
