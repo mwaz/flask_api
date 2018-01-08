@@ -358,7 +358,7 @@ class ManipulateCategory(MethodView):
             category.delete_categories()
             response = {'message': 'successfully deleted category',
                         'status': 'success',
-                        'category_id': 'category id {} '.format(category.id)}
+                        'id': '{}'.format(category.id)}
             return make_response(jsonify(response)), 200
 
 

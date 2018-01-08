@@ -328,7 +328,7 @@ class ManipulateRecipes(MethodView):
             response = {
                 "message": "successfully deleted recipe",
                 'status': 'success',
-                "recipe_id": 'recipe id {} ' .format(recipe.id)}
+                "id": '{}' .format(recipe.id)}
             response = make_response(jsonify(response)), 200
             return response
 
