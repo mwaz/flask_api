@@ -22,4 +22,3 @@ def category_validation(category_name):
 
     if error:
         raise error
-
