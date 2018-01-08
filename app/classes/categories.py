@@ -35,6 +35,7 @@ class Category(MethodView):
                     type: string
                     default: Breakfast
 
+
         responses:
           200:
             schema:
@@ -43,6 +44,18 @@ class Category(MethodView):
                 category_name:
                   type: string
                   default: Breakfast
+                created_by:
+                 type: integer
+                 default: 2
+                date_created:
+                 type: string
+                 default: Wed 20 Dec
+                date_modified:
+                 type: string
+                 default: Wed 20 Dec
+                id:
+                 type: integer
+                 default: 1
           400:
             description: category name not valid
           400:
