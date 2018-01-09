@@ -60,7 +60,7 @@ def make_app(config_name):
     app.add_url_rule(base_url + '/categories/<int:id>/recipes/<int:recipe_id>',
                      view_func=recipe_manipulation_view)
     app.add_url_rule(
-        base_url + '/categories/<int:id>/recipes/search/', view_func=recipe_search_view)
+        base_url + '/recipes/search/', view_func=recipe_search_view)
 
     from app.auth.authentication import user_registration_view, user_login_view, user_password_reset_view, user_logout_view
     app.add_url_rule(base_url + '/auth/register',
