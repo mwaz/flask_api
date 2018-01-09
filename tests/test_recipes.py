@@ -365,7 +365,7 @@ class RecipesTestCase(unittest.TestCase):
         self.assertEqual(create_another_recipe.status_code, 201)
 
         get_created_recipe = self.client().get(
-            base_url + '/categories/1/recipes/search/?q=Another_New_Recipes',
+            base_url + '/recipes/search/?q=Another_New_Recipes',
             headers=dict(Authorization=self.access_token))
         self.assertEqual(get_created_recipe.status_code, 200)
 
@@ -382,7 +382,7 @@ class RecipesTestCase(unittest.TestCase):
         self.assertEqual(create_another_recipe.status_code, 201)
 
         get_created_recipe = self.client().get(
-            base_url + '/categories/1/recipes/search/?q&page&limit',
+            base_url + '/recipes/search/?q&page&limit',
             headers=dict(Authorization=self.access_token))
         self.assertEqual(get_created_recipe.status_code, 200)
 
