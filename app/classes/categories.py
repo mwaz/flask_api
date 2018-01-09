@@ -71,14 +71,14 @@ class Category(MethodView):
         try:
             category_name = str(request.data.get('category_name', ''))
             category_details = Categories.query.filter_by(
-                    category_name=category_name, created_by=current_user.id).first()
+                    category_name=category_name.title(), created_by=current_user.id).first()
             category_validation(category_name)
             if category_details:
                 response = {'message': 'Category name exists'}
                 return make_response(jsonify(response)), 400
 
             category = Categories(
-                category_name=category_name, created_by=current_user.id)
+                category_name=category_name.title(), created_by=current_user.id)
             category.save()
             response = jsonify({
                 'id': category.id,
@@ -428,7 +428,7 @@ class SearchCategory(MethodView):
         if search:
             categories = Categories.query.filter(Categories.category_name.ilike(
                 '%' + search + '%')).filter(Categories.created_by == current_user.id).paginate(
-                    per_page=limit, page=page, error_out=False)
+                   page, limit, error_out=False)
 
             if not categories:
                 response = {'message': 'No  category found '}
@@ -447,6 +447,10 @@ class SearchCategory(MethodView):
                         'next_Page': categories.next_num
                     }
                     results.append(category_object)
+                if len(results) <= 0:
+                    response = {'message': 'No  category found '}
+                    response = make_response(jsonify(response)), 404
+                    return response
                 return make_response(jsonify(results)), 200
         else:
             response = {'message': 'No search item provided',

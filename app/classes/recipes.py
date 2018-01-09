@@ -70,11 +70,11 @@ class Recipe(MethodView):
                     response = {'message': str(e)}
                     return make_response(jsonify(response)), 400
 
-                recipe = Recipes(recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
+                recipe = Recipes(recipe_name=recipe_name.title(), recipe_ingredients=recipe_ingredients,
                                  recipe_methods=recipe_methods, category_id=category_id, created_by=current_user.id)
 
                 recipe_details = Recipes.query.filter_by(
-                    category_id=category_id, recipe_name=recipe_name, created_by=current_user.id).first()
+                    category_id=category_id, recipe_name=recipe_name.title(), created_by=current_user.id).first()
 
                 if recipe_details:
                     response = {'message': 'Recipe name exists',
@@ -136,7 +136,7 @@ class Recipe(MethodView):
 
         category_id = id
         recipes = Recipes.get_all_user_recipes(
-            category_id).paginate(page, limit, error_out=False)
+            category_id, current_user.id).paginate(page, limit, error_out=False)
         results = []
         for recipe in recipes.items:
             recipe_obj = {'id': recipe.id,
@@ -199,7 +199,7 @@ class ManipulateRecipes(MethodView):
           200:
             description: OK
         """
-        recipe = Recipes.query.filter_by(category_id=id, id=recipe_id).first()
+        recipe = Recipes.query.filter_by(category_id=id, id=recipe_id, created_by=current_user.id).first()
         if not recipe:
             response = {'message': 'No recipe found',
                         'status': 'error'}
@@ -317,7 +317,7 @@ class ManipulateRecipes(MethodView):
           200:
             description: OK
         """
-        recipe = Recipes.query.filter_by(category_id=id, id=recipe_id).first()
+        recipe = Recipes.query.filter_by(category_id=id, id=recipe_id, created_by=current_user.id).first()
         if not recipe:
             response = {'message': 'No recipe found',
                         'status': 'error'}
@@ -339,7 +339,7 @@ class SearchRecipe(MethodView):
     methods = ['GET']
     decorators = [token_required]
 
-    def get(self, current_user, id):
+    def get(self, current_user):
         """Method to search a recipe using a get request
         ---
         tags:
@@ -382,9 +382,8 @@ class SearchRecipe(MethodView):
         limit = request.args.get('limit', default=10, type=int)
 
         if search:
-            category_id = id
             recipes = Recipes.query.filter(Recipes.recipe_name.ilike(
-                '%' + search + '%')).filter(Recipes.category_id == category_id).paginate(
+                '%' + search + '%')).filter(Recipes.created_by == current_user.id).paginate(
                     per_page=limit, page=page, error_out=False)
             results = []
             for recipe in recipes.items:
@@ -398,8 +397,11 @@ class SearchRecipe(MethodView):
                               'previous_page': recipes.prev_num,
                               'next_Page': recipes.next_num
                              }
-
                 results.append(recipe_obj)
+            if len(results) <= 0:
+                response = {'message': 'No  recipe found '}
+                response = make_response(jsonify(response)), 404
+                return response
             response = jsonify(results)
             response.status_code = 200
             return response
