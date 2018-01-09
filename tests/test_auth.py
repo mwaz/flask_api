@@ -233,3 +233,19 @@ class TestAuth(unittest.TestCase):
         password_reset_data = json.loads(password_reset.data.decode())
         self.assertIn(
             password_reset_data['message'], '"Kindly provide correct email and secret word"')
+
+    def test_to_check_invalid_route(self):
+        """test to check message returned after an invalid route is provided on register
+        """
+        user_register = self.client().post(base_url + '/register/', data=self.user_details)
+        self.assertEqual(user_register.status_code, 404)
+        register_data = json.loads(user_register.data.decode())
+        self.assertIn(register_data['message'], 'Page not found')
+
+    def test_invalid_method_on_route(self):
+        """Method to check invalid route provided on register
+        """
+        user_register = self.client().get(base_url + '/register', data=self.user_details)
+        self.assertEqual(user_register.status_code, 405)
+        register_data = json.loads(user_register.data.decode())
+        self.assertIn(register_data['message'], 'Method not allowed')

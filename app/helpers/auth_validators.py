@@ -1,6 +1,6 @@
 """Class to validate user input
 """
-from marshmallow import Schema, fields, ValidationError
+from marshmallow import ValidationError
 from validate_email import validate_email
 import re
 
@@ -14,17 +14,17 @@ def user_registration_validation(email, username, password, secret):
     valid_email = validate_email(email)
 
     if username:
-        username = re.sub(r'\s+', ' ', username).strip()
+        username = re.sub(r'\s+', '', username).strip()
     username = None if username == " " else username.title()
 
     if not email or not password or not username:
-        error = ValidationError('Kindly provide all details')
+        error = ValidationError('Email, password, username missing')
     if not len(password) >= 6:
         error = ValidationError('Password should be more than six characters')
     if not secret:
         error = ValidationError('Kindly provide a SECRET word')
     if not username:
-        error = ValidationError('{} is not a valid username'.format(username))
+        error = ValidationError('{} Kindly provide a username ')
     if not valid_email:
         error = ValidationError('{} is not a valid email'.format(email))
 
@@ -49,7 +49,7 @@ def password_reset_validation(email, reset_password, secret):
     """
     error = None
     if reset_password:
-        reset_password = re.sub(r'\s+', ' ', reset_password).strip()
+        reset_password = re.sub(r'\s+', '', reset_password).strip()
     reset_password = None if reset_password == " " else reset_password
 
     if not reset_password:

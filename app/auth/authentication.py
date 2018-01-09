@@ -123,6 +123,7 @@ class LoginUser(MethodView):
                 if access_token:
                     response = {
                         'message': 'Successful Login',
+                        'status': 'success',
                         'access_token': access_token.decode()
                     }
                     return make_response(jsonify(response)), 200

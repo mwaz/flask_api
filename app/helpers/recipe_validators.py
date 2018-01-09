@@ -1,34 +1,26 @@
-from marshmallow import  ValidationError
+from marshmallow import ValidationError
 import re
 
 
-def recipe_validation(recipe_name, recipe_methods, recipe_ingredients):
+def recipe_validation(recipe, *argv):
     error = None
     regex_pattern = "[a-zA-Z0-9-]+$"
 
-    if recipe_name:
-        recipe_name = re.sub(r'\s+', ' ', recipe_name).strip()
-    recipe_name = None if recipe_name == "  " else recipe_name.title()
+    if recipe:
+        recipe = re.sub(r'\s+', '', recipe).strip()
+    recipe = None if recipe == "  " else recipe.title()
 
-    if recipe_ingredients:
-        recipe_ingredients = re.sub(r'\s+', ' ', recipe_ingredients).strip()
-    recipe_ingredients = None if recipe_ingredients == "  " else recipe_ingredients
+    if not re.search(regex_pattern, recipe):
+        error = ValidationError('recipe name cannot be empty or with invalid characters')
 
-    if recipe_methods:
-        recipe_methods = re.sub(r'\s+', ' ', recipe_methods).strip()
-    recipe_methods = None if recipe_methods == "  " else recipe_methods
+    for arg in argv:
+        if arg:
+            arg = re.sub(r'\s+', '', arg).strip()
+        arg = None if arg == "  " else arg
 
-    if not recipe_name:
-        error = ValidationError('Recipe name not provided')
+        if not arg:
+            error = ValidationError('Kindly provide ingredients and methods')
 
-    if not recipe_ingredients:
-        error = ValidationError('Recipe ingredients not provided')
+        if error:
+            raise error
 
-    if not recipe_methods:
-            error = ValidationError('Recipe preparation methods not provided')
-
-    if not re.search(regex_pattern, recipe_name):
-        error = ValidationError('Recipe name is not valid')
-
-    if error:
-        raise error

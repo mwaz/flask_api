@@ -7,4 +7,7 @@ instance/__pycache__
 tests/__pycache__
 .vscode/settings.json
 migrations/
-
+.DS_Store
+.cache/
+.coverage
+cover/

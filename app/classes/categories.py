@@ -29,11 +29,12 @@ class Category(MethodView):
               required: true
               type: string
               schema:
-                id: categories
+                id: categories create
                 properties:
                   category_name:
                     type: string
                     default: Breakfast
+
 
         responses:
           200:
@@ -43,6 +44,18 @@ class Category(MethodView):
                 category_name:
                   type: string
                   default: Breakfast
+                created_by:
+                 type: integer
+                 default: 2
+                date_created:
+                 type: string
+                 default: Wed 20 Dec
+                date_modified:
+                 type: string
+                 default: Wed 20 Dec
+                id:
+                 type: integer
+                 default: 1
           400:
             description: category name not valid
           400:
@@ -287,7 +300,8 @@ class ManipulateCategory(MethodView):
                 category_name=category_name, created_by=current_user.id).first()
 
             if category_details:
-                response = {'message': 'Category name exists'}
+                response = {'message': 'Category name exists',
+                            'status': 'fail'}
                 return make_response(jsonify(response)), 400
 
             category.category_name = category_name
@@ -337,13 +351,15 @@ class ManipulateCategory(MethodView):
         category = Categories.query.filter_by(
             id=id, created_by=current_user.id).first()
         if not category:
-            response = {'message': 'Category does not exist'}
+            response = {'message': 'Category does not exist',
+                        'status': 'error'}
             return make_response(jsonify(response)), 404
         else:
             category.delete_categories()
-            return {
-                "message": "successfully deleted category" .format(category.id)
-            }, 200
+            response = {'message': 'successfully deleted category',
+                        'status': 'success',
+                        'id': '{}'.format(category.id)}
+            return make_response(jsonify(response)), 200
 
 
 class SearchCategory(MethodView):
@@ -433,7 +449,8 @@ class SearchCategory(MethodView):
                     results.append(category_object)
                 return make_response(jsonify(results)), 200
         else:
-            response = {'message': 'No search item provided'}
+            response = {'message': 'No search item provided',
+                        'status': 'error'}
             return make_response(jsonify(response)), 200
 
 
