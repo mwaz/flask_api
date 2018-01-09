@@ -1,7 +1,6 @@
 """Class to validate user input
 """
 from marshmallow import ValidationError
-from validate_email import validate_email
 import re
 
 
@@ -9,15 +8,16 @@ def user_registration_validation(email, username, password, secret):
     """
     Method to check if email data is valid
     """
+    regex_email = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z-.]+$)"
     error = None
-    email = None if email == " " else email.lower()
-    valid_email = validate_email(email)
+    email = None if email == " " else email
+    valid_email = re.search(regex_email, email)
 
     if username:
         username = re.sub(r'\s+', '', username).strip()
-    username = None if username == " " else username.title()
+    username = None if username == " " else username
 
-    if not email or not password or not username:
+    if not valid_email or not password or not username:
         error = ValidationError('Email, password, username missing')
     if not len(password) >= 6:
         error = ValidationError('Password should be more than six characters')
