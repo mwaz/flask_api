@@ -56,7 +56,7 @@ class User(db.Model):
     def password_hash(password):
         """method to hash provided password
         """
-        password = Bcrypt().generate_password_hash(password).decode()
+        password = Bcrypt().generate_password_hash(password)
         return password
 
     @staticmethod
@@ -176,12 +176,12 @@ class Recipes(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_all_user_recipes(category_id):
+    def get_all_user_recipes(category_id, user_id):
         """
         This method fetches all the recipe categories
         that belong to a user.
         """
-        return Recipes.query.filter_by(category_id=category_id)
+        return Recipes.query.filter_by(category_id=category_id, created_by=user_id)
 
     def delete_recipes(self):
         """ This method deletes a recipe category belonging to a user """
