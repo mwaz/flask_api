@@ -8,7 +8,7 @@ def recipe_validation(recipe, *argv):
 
     if recipe:
         recipe = re.sub(r'\s+', '', recipe).strip()
-    recipe = None if recipe == "  " else recipe.title()
+    recipe = None if recipe == "  " else recipe
 
     if not re.search(regex_pattern, recipe):
         error = ValidationError('recipe name cannot be empty or with invalid characters')

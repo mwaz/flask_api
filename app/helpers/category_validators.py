@@ -12,7 +12,7 @@ def category_validation(category_name):
 
     if category_name:
         category_name = re.sub(r'\s+', ' ', category_name).strip()
-    category_name = None if category_name == " " else category_name.title()
+    category_name = None if category_name == " " else category_name
 
     if not category_name:
         error = ValidationError('category name not valid')
