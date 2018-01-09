@@ -79,12 +79,12 @@ class RecipesTestCase(unittest.TestCase):
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
                                            headers=dict(Authorization=self.access_token),
-                                           data={"recipe_name": "",
+                                           data={"recipe_name": " ",
                                                  "recipe_ingredients": "milk",
                                                  "recipe_methods": "heat to boil"})
         self.assertEqual(create_recipe.status_code, 400)
         recipe_data = json.loads(create_recipe.data.decode())
-        self.assertIn(recipe_data['message'], 'Recipe name not provided')
+        self.assertIn(recipe_data['message'], 'recipe name cannot be empty or with invalid characters')
 
     def test_null_recipe_methods(self):
         """test if recipe methods are null
@@ -93,12 +93,12 @@ class RecipesTestCase(unittest.TestCase):
                                            headers=dict(Authorization=self.access_token),
                                            data={"recipe_name": "New Recipe",
                                                  "recipe_ingredients": "milk",
-                                                 "recipe_methods": ""})
+                                                 "recipe_methods": " "})
 
         self.assertEqual(create_recipe.status_code, 400)
         recipe_data = json.loads(create_recipe.data.decode())
         self.assertIn(recipe_data['message'],
-                      'Recipe preparation methods not provided')
+                      'Kindly provide ingredients and methods')
 
     def test_null_recipe_ingredients(self):
         """test if recipe ingredients are null
@@ -112,19 +112,19 @@ class RecipesTestCase(unittest.TestCase):
         self.assertEqual(create_recipe.status_code, 400)
         recipe_data = json.loads(create_recipe.data.decode())
         self.assertIn(recipe_data['message'],
-                      'Recipe ingredients not provided')
+                      'Kindly provide ingredients and methods')
 
     def test_invalid_recipe_name(self):
         """test if recipe name is valid
         """
         create_recipe = self.client().post(base_url + '/categories/1/recipes/',
                                            headers=dict(Authorization=self.access_token),
-                                           data={"recipe_name": "@@@",
+                                           data={"recipe_name": "",
                                                  "recipe_ingredients": "milk, water",
                                                  "recipe_methods": "heat to boil"})
-        self.assertEqual(create_recipe.status_code, 400)
         recipe_data = json.loads(create_recipe.data.decode())
-        self.assertIn(recipe_data['message'], 'Recipe name is not valid')
+        self.assertIn(recipe_data['message'], 'recipe name cannot be empty or with invalid characters')
+        self.assertEqual(create_recipe.status_code, 400)
 
     def test_duplicate_recipe(self):
         """test if recipe is duplicated
@@ -201,7 +201,7 @@ class RecipesTestCase(unittest.TestCase):
                                               'recipe_methods': 'boil to heat'})
         category_data = json.loads(edit_recipe.data.decode())
         self.assertEqual(edit_recipe.status_code, 400)
-        self.assertIn(category_data['message'], 'Recipe name not provided')
+        self.assertIn(category_data['message'], 'recipe name cannot be empty or with invalid characters')
 
     def test_to_edit_recipe_with_null_recipe_methods(self):
         """Test to edit a recipe name with null recipe methods
@@ -219,7 +219,7 @@ class RecipesTestCase(unittest.TestCase):
         category_data = json.loads(edit_recipe.data.decode())
         self.assertEqual(edit_recipe.status_code, 400)
         self.assertIn(category_data['message'],
-                      'Recipe preparation methods not provided')
+                      'Kindly provide ingredients and methods')
 
     def test_to_edit_recipe_with_null_recipe_ingredients(self):
         """Test to edit a recipe name with null recipe ingredients
@@ -237,7 +237,7 @@ class RecipesTestCase(unittest.TestCase):
         category_data = json.loads(edit_recipe.data.decode())
         self.assertEqual(edit_recipe.status_code, 400)
         self.assertIn(category_data['message'],
-                      'Recipe ingredients not provided')
+                      'Kindly provide ingredients and methods')
 
     def test_edit_invalid_recipe_name(self):
         """Test to edit a recipe name with invalid recipe name
@@ -254,7 +254,7 @@ class RecipesTestCase(unittest.TestCase):
                                               'recipe_methods': 'heat to boil'})
         category_data = json.loads(edit_recipe.data.decode())
         self.assertEqual(edit_recipe.status_code, 400)
-        self.assertIn(category_data['message'], 'Recipe name is not valid')
+        self.assertIn(category_data['message'], 'recipe name cannot be empty or with invalid characters')
 
     def test_edit_recipe_with_no_recipe_id(self):
         """Test to edit a recipe name with invalid recipe name

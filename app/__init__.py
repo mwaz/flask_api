@@ -1,6 +1,7 @@
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from flasgger import Swagger
+from flask import make_response, jsonify, abort
 
 
 # local import
@@ -70,4 +71,23 @@ def make_app(config_name):
                      view_func=user_password_reset_view, )
     app.add_url_rule(base_url + '/auth/logout', view_func=user_logout_view)
 
+    @app.errorhandler(404)
+    def not_found(error):
+        """handles error when users enters inappropriate endpoint
+        """
+        response = {
+            'message': 'Page not found'
+        }
+        return make_response(jsonify(response)), 404
+
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        """ handles errors if users uses method that is not allowed in an endpoint
+        """
+        response = {
+            'message': 'Method not allowed'
+        }
+        return make_response(jsonify(response)), 405
+
     return app
+

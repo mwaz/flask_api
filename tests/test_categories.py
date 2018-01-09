@@ -65,7 +65,7 @@ class CategoriesTestCase(unittest.TestCase):
                                                data={'category_name': ''})
         categories_data = json.loads(create_categories.data.decode())
         self.assertEqual(create_categories.status_code, 400)
-        self.assertIn(categories_data['message'], 'category name not provided')
+        self.assertIn(categories_data['message'], 'Category name is not valid')
 
     def test_invalid_category_name(self):
         """Method to test invalid category name
@@ -100,26 +100,6 @@ class CategoriesTestCase(unittest.TestCase):
         get_categories = self.client().get(base_url + 'categories/', headers=dict(
             Authorization=self.access_token))
         self.assertEqual(get_categories.status_code, 200)
-
-    def test_to_check_for_invalid_page_number_on_category_fetch(self):
-        """Method to test invalid arguements of page on category fetch
-        """
-        get_categories = self.client().post(base_url + 'categories/', headers=dict(
-            Authorization=self.access_token), data=self.categories)
-        self.assertEqual(get_categories.status_code, 201)
-        get_categories = self.client().get(base_url + 'categories/?page=fd', headers=dict(
-            Authorization=self.access_token))
-        self.assertEqual(get_categories.status_code, 400)
-
-    def test_to_check_for_invalid_limit_parameter_on_category_fetch(self):
-        """Method to test invalid arguements of limit on category fetch
-        """
-        get_categories = self.client().post(base_url + 'categories/', headers=dict(
-            Authorization=self.access_token), data=self.categories)
-        self.assertEqual(get_categories.status_code, 201)
-        get_categories = self.client().get(base_url + 'categories/?limit=fd', headers=dict(
-            Authorization=self.access_token))
-        self.assertEqual(get_categories.status_code, 400)
 
     def test_to_check_for_paginated_recipe_categories(self):
         """Method to test pagination of category results
@@ -174,7 +154,7 @@ class CategoriesTestCase(unittest.TestCase):
         self.assertEqual(create_category.status_code, 201)
 
         edit_category = self.client().put(base_url + 'categories/1', headers=dict(
-            Authorization=self.access_token), data={"category_name": "newly_edited_category"})
+            Authorization=self.access_token), data={"category_name": "Newly_Edited"})
         self.assertEqual(edit_category.status_code, 200)
 
         #test to check whether the edited category exists
@@ -201,7 +181,7 @@ class CategoriesTestCase(unittest.TestCase):
                                           headers=dict(Authorization=self.access_token), data={"category_name": ""})
         self.assertEqual(edit_category.status_code, 400)
         category_data = json.loads(edit_category.data.decode())
-        self.assertIn(category_data['message'], 'category name not provided')
+        self.assertIn(category_data['message'], 'Category name is not valid')
 
     def test_edit_category_with_invalid_name(self):
         """test if API can edit a recipe category with an invalid name
@@ -274,26 +254,6 @@ class CategoriesTestCase(unittest.TestCase):
         get_categories = self.client().get(base_url + 'categories/search/?q=cate', headers=dict(
             Authorization=self.access_token))
         self.assertEqual(get_categories.status_code, 200)
-
-    def test_to_check_for_invalid_page_number_on_search(self):
-        """Method to test invalid arguements on category search
-        """
-        get_categories = self.client().post(base_url + 'categories/', headers=dict(
-            Authorization=self.access_token), data=self.categories)
-        self.assertEqual(get_categories.status_code, 201)
-        get_categories = self.client().get(base_url + 'categories/search/?q=New&page=fd', headers=dict(
-            Authorization=self.access_token))
-        self.assertEqual(get_categories.status_code, 400)
-
-    def test_to_check_for_invalid_limit_parameter_on_search(self):
-        """Method to test pagination of searched category results
-        """
-        get_categories = self.client().post(base_url + 'categories/', headers=dict(
-            Authorization=self.access_token), data=self.categories)
-        self.assertEqual(get_categories.status_code, 201)
-        get_categories = self.client().get(base_url + 'categories/search/?q=New&limit=fd', headers=dict(
-            Authorization=self.access_token))
-        self.assertEqual(get_categories.status_code, 400)
 
     def test_to_search_with_null_category_item(self):
         """Test to search with no category item provided

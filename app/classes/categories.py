@@ -1,10 +1,10 @@
 """Class to handle category creation, viewing and manipulation
 """
-import re
-from app.decorators import token_required
+from app.helpers.decorators import token_required
 from app.models import Categories
 from flask import request, jsonify, make_response
 from flask.views import MethodView
+from app.helpers.category_validators import category_validation
 
 
 class Category(MethodView):
@@ -29,11 +29,12 @@ class Category(MethodView):
               required: true
               type: string
               schema:
-                id: categories
+                id: categories create
                 properties:
                   category_name:
                     type: string
                     default: Breakfast
+
 
         responses:
           200:
@@ -43,6 +44,18 @@ class Category(MethodView):
                 category_name:
                   type: string
                   default: Breakfast
+                created_by:
+                 type: integer
+                 default: 2
+                date_created:
+                 type: string
+                 default: Wed 20 Dec
+                date_modified:
+                 type: string
+                 default: Wed 20 Dec
+                id:
+                 type: integer
+                 default: 1
           400:
             description: category name not valid
           400:
@@ -54,41 +67,31 @@ class Category(MethodView):
           201:
             description: category created
         """
-        regex_pattern = "[a-zA-Z0-9- .]+$"
-        category_name = str(request.data.get('category_name'))
 
-        if category_name:
-            category_name = re.sub(r'\s+', ' ', category_name).strip()
+        try:
+            category_name = str(request.data.get('category_name', ''))
+            category_details = Categories.query.filter_by(
+                    category_name=category_name, created_by=current_user.id).first()
+            category_validation(category_name)
+            if category_details:
+                response = {'message': 'Category name exists'}
+                return make_response(jsonify(response)), 400
 
-        category_name = None if category_name == " " else category_name.title()
-
-        if not category_name:
-            response = {'message': 'category name not provided'}
+            category = Categories(
+                category_name=category_name, created_by=current_user.id)
+            category.save()
+            response = jsonify({
+                'id': category.id,
+                'category_name': category.category_name,
+                'created_by': category.created_by,
+                'date_created': category.date_created,
+                'date_modified': category.date_modified
+            })
+            response.status_code = 201
+            return response
+        except Exception as e:
+            response = {'message': str(e)}
             return make_response(jsonify(response)), 400
-
-        if not re.search(regex_pattern, category_name):
-            response = {'message': 'Category name is not valid'}
-            return make_response(jsonify(response)), 400
-
-        category_details = Categories.query.filter_by(
-                category_name=category_name, created_by=current_user.id).first()
-
-        if category_details:
-            response = {'message': 'Category name exists'}
-            return make_response(jsonify(response)), 400
-
-        category = Categories(
-            category_name=category_name, created_by=current_user.id)
-        category.save()
-        response = jsonify({
-            'id': category.id,
-            'category_name': category.category_name,
-            'created_by': category.created_by,
-            'date_created': category.date_created,
-            'date_modified': category.date_modified
-        })
-        response.status_code = 201
-        return response
 
     def get(self, current_user):
         """Method to get all categories of a user in a paginated way
@@ -282,47 +285,39 @@ class ManipulateCategory(MethodView):
           200:
             description: OK
         """
-        regex_pattern = "[a-zA-Z0-9- .]+$"
 
-        category = Categories.query.filter_by(
-            id=id, created_by=current_user.id).first()
-        category_name = str(request.data.get('category_name', ''))
+        try:
+            category = Categories.query.filter_by(
+                id=id, created_by=current_user.id).first()
+            category_name = str(request.data.get('category_name', ''))
+            category_validation(category_name)
 
-        if category_name:
-            category_name = re.sub(r'\s+', ' ', category_name).strip()
+            if not category:
+                response = {'message': 'Category does not exist'}
+                return make_response(jsonify(response)), 404
 
-        category_name = None if category_name == " " else category_name.title()
-
-        if not category_name:
-            response = {'message': 'category name not provided'}
-            return make_response(jsonify(response)), 400
-
-        if not re.search(regex_pattern, category_name):
-            response = {'message': 'Category name is not valid'}
-            return make_response(jsonify(response)), 400
-
-        if not category:
-            response = {'message': 'Category does not exist'}
-            return make_response(jsonify(response)), 404
-
-        category_details = Categories.query.filter_by(
+            category_details = Categories.query.filter_by(
                 category_name=category_name, created_by=current_user.id).first()
 
-        if category_details:
-            response = {'message': 'Category name exists'}
-            return make_response(jsonify(response)), 400
+            if category_details:
+                response = {'message': 'Category name exists',
+                            'status': 'fail'}
+                return make_response(jsonify(response)), 400
 
-        category.category_name = category_name
-        category.save()
-        response = jsonify({
-            'id': category.id,
-            'category_name': category.category_name,
-            'created_by': category.created_by,
-            'date_created': category.date_created,
-            'date_modified': category.date_modified
-        })
-        response.status_code = 200
-        return response
+            category.category_name = category_name
+            category.save()
+            response = jsonify({
+                'id': category.id,
+                'category_name': category.category_name,
+                'created_by': category.created_by,
+                'date_created': category.date_created,
+                'date_modified': category.date_modified
+            })
+            response.status_code = 200
+            return response
+        except Exception as e:
+            response = {'message': str(e)}
+            return make_response(jsonify(response)), 400
 
     def delete(self, current_user, id):
         """Method to delete a single category using its category id
@@ -356,13 +351,15 @@ class ManipulateCategory(MethodView):
         category = Categories.query.filter_by(
             id=id, created_by=current_user.id).first()
         if not category:
-            response = {'message': 'Category does not exist'}
+            response = {'message': 'Category does not exist',
+                        'status': 'error'}
             return make_response(jsonify(response)), 404
         else:
             category.delete_categories()
-            return {
-                "message": "successfully deleted category" .format(category.id)
-            }, 200
+            response = {'message': 'successfully deleted category',
+                        'status': 'success',
+                        'id': '{}'.format(category.id)}
+            return make_response(jsonify(response)), 200
 
 
 class SearchCategory(MethodView):
@@ -452,7 +449,8 @@ class SearchCategory(MethodView):
                     results.append(category_object)
                 return make_response(jsonify(results)), 200
         else:
-            response = {'message': 'No search item provided'}
+            response = {'message': 'No search item provided',
+                        'status': 'error'}
             return make_response(jsonify(response)), 200
 
 

@@ -41,15 +41,16 @@ class TestAuth(unittest.TestCase):
         self.assertEqual(result['message'], "Successfully registered")
         self.assertEqual(user_register.status_code, 201)
 
-    def test_empty_email_and_password_on_register(self):
-        """Method to check for empty email or password strings on signup
+    def test_password_on_register(self):
+        """Method to check for empty username or password strings on signup
         """
         user_register = self.client().post(base_url + '/register',
-                                           data={'email': '', 'password': '', 'username': ''})
-        self.assertEqual(user_register.status_code, 422)
+                                           data={'email': 'n@n.com', 'password': '4324', 'username': 'new',
+                                                 'secret_word': 'secret'})
+        self.assertEqual(user_register.status_code, 400)
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'],
-                         "Kindly Provide all required details")
+                         "Password should be more than six characters")
 
     def test_empty_secret_word_on_register(self):
         """Method to test for empty secret word on user register
@@ -58,11 +59,10 @@ class TestAuth(unittest.TestCase):
             base_url + '/register',
             data={'email': 'test@test.com', 'password': '32eq5646436rw',
                   'username': 'New_User', 'secret_word': ''})
-        self.assertEqual(user_register.status_code, 422)
+        self.assertEqual(user_register.status_code, 400)
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'],
-                         "Kindly Provide a secret word")
-
+                         "Kindly provide a SECRET word")
 
     def test_minimum_required_password_on_register(self):
         """Methdod to test for the minimum required password length on registration
@@ -74,7 +74,7 @@ class TestAuth(unittest.TestCase):
         self.assertEqual(user_register.status_code, 400)
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'],
-                         "Password must be at least six characters")
+                         "Password should be more than six characters")
 
     def test_to_email_regex_pattern_on_register(self):
         """Method to check for a valid regex pattern on registration
@@ -83,20 +83,6 @@ class TestAuth(unittest.TestCase):
                                            data={'email': 't.com', 'password': '2324dsfscdsf',
                                                  'username': 'User', 'secret_word': 'TOP SECRET'})
         self.assertEqual(user_register.status_code, 400)
-        user_details = json.loads(user_register.data.decode())
-        self.assertEqual(user_details['message'], "Email pattern not valid")
-
-    def test_username_regex_pattern(self):
-        """Method to check if username matches provided regex pattern
-        """
-        user_register = self.client().post(
-            base_url + '/register',
-            data={'email': 'test@test.com',
-                  'password': '2324dsfscdsf', 'username': '$%$^', 'secret_word': 'TOP SECRET'})
-        self.assertEqual(user_register.status_code, 400)
-        user_details = json.loads(user_register.data.decode())
-        self.assertEqual(user_details['message'],
-                         "No special characters allowed on username")
 
     def test_error_exception_on_user_register(self):
         """Method to check for error handling in registration
@@ -113,10 +99,10 @@ class TestAuth(unittest.TestCase):
 
         user_login = self.client().post(base_url + '/login',
                                         data={'email': '', 'password': ''})
-        self.assertEqual(user_login.status_code, 422)
+        self.assertEqual(user_login.status_code, 400)
         user_details = json.loads(user_login.data.decode())
         self.assertEqual(user_details['message'],
-                         "Kindly Provide email and password")
+                         "Error occurred on user login")
 
     def test_double_registration(self):
         """"Method to test a user who is already registered
@@ -152,9 +138,9 @@ class TestAuth(unittest.TestCase):
             base_url + '/password-reset',
             data={'email': '', 'reset_password': 'testing_reset_p@ssword',
                   'secret_word': 'TOP SECRET'})
-        self.assertEqual(password_reset.status_code, 404)
+        self.assertEqual(password_reset.status_code, 400)
         user_data = json.loads(password_reset.data.decode())
-        self.assertIn(user_data['message'], "Kindly provide correct email and secret word")
+        self.assertIn(user_data['message'], "Invalid user email")
 
     def test_empty_reset_password(self):
         """Method to test for empty password while doing a password reset
@@ -166,7 +152,7 @@ class TestAuth(unittest.TestCase):
                                                  'reset_password': '', 'secret_word': 'TOP SECRET'})
         self.assertEqual(password_reset.status_code, 400)
         user_data = json.loads(password_reset.data.decode())
-        self.assertIn(user_data['message'], "No password provided")
+        self.assertIn(user_data['message'], "Kindly provide a reset Password")
 
     def test_to_check_success_in_reseting_password(self):
         """Method to check for successfully updated user password
@@ -247,3 +233,19 @@ class TestAuth(unittest.TestCase):
         password_reset_data = json.loads(password_reset.data.decode())
         self.assertIn(
             password_reset_data['message'], '"Kindly provide correct email and secret word"')
+
+    def test_to_check_invalid_route(self):
+        """test to check message returned after an invalid route is provided on register
+        """
+        user_register = self.client().post(base_url + '/register/', data=self.user_details)
+        self.assertEqual(user_register.status_code, 404)
+        register_data = json.loads(user_register.data.decode())
+        self.assertIn(register_data['message'], 'Page not found')
+
+    def test_invalid_method_on_route(self):
+        """Method to check invalid route provided on register
+        """
+        user_register = self.client().get(base_url + '/register', data=self.user_details)
+        self.assertEqual(user_register.status_code, 405)
+        register_data = json.loads(user_register.data.decode())
+        self.assertIn(register_data['message'], 'Method not allowed')
