@@ -60,8 +60,8 @@ class RegisterUser(MethodView):
                 try:
                     user_registration_validation(email, username, password, secret)
 
-                    user = User(email=email, password=password,
-                                username=username, secret_word=secret)
+                    user = User(email=email.lower(), password=password,
+                                username=username.title(), secret_word=secret)
                     user.save()
                     response = {'message': "Successfully registered"}
                     return make_response(jsonify(response)), 201
