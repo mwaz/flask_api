@@ -348,13 +348,7 @@ class SearchRecipe(MethodView):
           - application/json
         security:
           - TokenHeader: []
-
-
         parameters:
-            - in: path
-              name: id
-              description: category id that the recipe belongs to
-
             - in: query
               name: q
               description: The recipe to be searched for
@@ -391,6 +385,7 @@ class SearchRecipe(MethodView):
                               'recipe_name': recipe.recipe_name,
                               'recipe_ingredients': recipe.recipe_ingredients,
                               'recipe_methods': recipe.recipe_methods,
+                              'created_by': recipe.created_by,
                               'category_id': recipe.category_id,
                               'date_created': recipe.date_created,
                               'date_modified': recipe.date_modified,
