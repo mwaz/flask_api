@@ -116,8 +116,8 @@ class TestAuth(unittest.TestCase):
     def test_to_check_null_email_in_reset_passworp(self):
         """Method to check that email needs to be provided while resetting a password
         """
-        user_register = self.client().post(base_url + '/register', data=self.user_details)
-        self.assertEqual(user_register.status_code, 201)
+        self.client().post(base_url + '/register', data=self.user_details)
+
         password_reset = self.client().put(
             base_url + '/password-reset',
             data={'email': '', 'reset_password': 'testing_reset_p@ssword',
