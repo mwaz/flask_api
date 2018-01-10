@@ -101,9 +101,17 @@ class Category(MethodView):
         produces:
             - application/json
         security:
-          - TokenHeader: []
-        parameter:
-          - in: path
+            - TokenHeader []
+        parameters:
+            - in: query
+              name: page
+              description: The number of pages of the results to be returned
+
+            - in: query
+              name: limit
+              description: The limit of recipes to be returned by the paginated results
+
+
         responses:
           200:
             schema:
