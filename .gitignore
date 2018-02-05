@@ -1,13 +1,13 @@
-venv
-.idea
+env_cp3
 .env
+.idea
+.cache
 __pycache__/
 app/__pycache__
 instance/__pycache__
 tests/__pycache__
 .vscode/settings.json
-migrations/
 .DS_Store
-.cache/
 .coverage
 cover/
+migrations/
