@@ -4,7 +4,7 @@ from marshmallow import ValidationError
 import re
 
 
-def user_registration_validation(email, username, password, secret):
+def user_registration_validation(email, username, password):
     """
     Method to check if email data is valid
     """
@@ -21,8 +21,6 @@ def user_registration_validation(email, username, password, secret):
         error = ValidationError('Email, password, username missing')
     if not len(password) >= 6:
         error = ValidationError('Password should be more than six characters')
-    if not secret:
-        error = ValidationError('Kindly provide a SECRET word')
     if not username:
         error = ValidationError('{} Kindly provide a username ')
     if not valid_email:
@@ -57,9 +55,6 @@ def password_reset_validation(email, reset_password, secret):
 
     if not email:
         error = ValidationError('Invalid user email')
-
-    if not secret:
-        error = ValidationError('Invalid Secret Word')
 
     if error:
         raise error
