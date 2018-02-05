@@ -15,7 +15,7 @@ class CategoriesTestCase(unittest.TestCase):
     def setUp(self):
         """Defines the initialization variables for the class
         """
-        self.app = make_app(config_name="testing")
+        self.app = make_app("testing")
         self.client = self.app.test_client
         self.categories = {'category_name': 'New_Category'}
 

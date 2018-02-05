@@ -14,7 +14,7 @@ class RecipesTestCase(unittest.TestCase):
     def setUp(self):
         """method to define variables to be used in the tests
         """
-        self.app = make_app(config_name="testing")
+        self.app = make_app("testing")
         self.client = self.app.test_client
         self.recipes = {'recipe_name': 'New_Recipes',
                         'recipe_ingredients': 'milk',

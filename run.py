@@ -2,8 +2,8 @@ import os
 from flask import redirect
 from app import make_app
 
-config_name = os.getenv('APP_SETTINGS')
-app = make_app(config_name)
+# config_name = os.getenv('APP_SETTINGS')
+app = make_app('development')
 port = 5000
 
 
@@ -15,4 +15,4 @@ def rundoc():
 
 
 if __name__ == '__main__':
-    app.run(port=port)
+    app.run(port=port, host='0.0.0.0')

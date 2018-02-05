@@ -7,11 +7,11 @@ base_url = '/yummy_api/v1/auth'
 
 
 class TestAuth(unittest.TestCase):
-    """"Testcase for blueprint for authentication
+    """"Test case for blueprint for authentication
     """
 
     def setUp(self):
-        self.app = make_app(config_name="testing")
+        self.app = make_app("testing")
         self.client = self.app.test_client
         self.user_details = {'email': 'someone@gmail.com',
                              'password': 'testing_p@ssword',

@@ -9,7 +9,7 @@ class Config(object):
     DEBUG = False
     CSRF_ENABLED = True
     SECRET = os.getenv('SECRET', '#%$#%$^FDFGFGdf')
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:@localhost:5432/flask_api'
+    
 
 
 class DevelopmentConfig(Config):
@@ -17,6 +17,7 @@ class DevelopmentConfig(Config):
     """
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:@localhost:5432/flask_api'
+    
 
 
 class TestingConfig(Config):
@@ -25,12 +26,6 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',
                                         'postgresql://postgres:@localhost:5432/test_db')
-    DEBUG = True
-
-
-class StagingConfig(Config):
-    """Configurations for Staging
-    """
     DEBUG = True
 
 
@@ -46,6 +41,5 @@ class ProductionConfig(Config):
 app_config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
-    'staging': StagingConfig,
     'production': ProductionConfig,
 }
