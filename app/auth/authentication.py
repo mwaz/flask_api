@@ -187,8 +187,9 @@ class ResetUserPassword(MethodView):
     """Class to allow user to reset password
     """
     methods = ['PUT']
-
-    def put(self):
+    decorators = [token_required]
+    @staticmethod
+    def put(current_user):
         """Method to reset a password
         ---
         swagger: 2.0
@@ -223,23 +224,25 @@ class ResetUserPassword(MethodView):
         """
 
         try:
-            email = str(request.data.get('email', ''))
+            email = current_user.email
             user_details = User.query.filter_by(
                 email=email).first()
             reset_password = str(request.data.get('reset_password', ''))
-            password_reset_validation(email, reset_password)
+            confirm_password = str(request.data.get('confirm_password', ''))
+            password_reset_validation(reset_password, confirm_password)
 
-            if user_details and user_details.password == old_password:
+            if user_details and reset_password ==  confirm_password:
                 res_password = User.password_hash(reset_password)
                 user_details.password = res_password
                 user_details.save()
                 response = jsonify({'id': user_details.id,
                                     'email': user_details.email,
                                     'status': 'success',
+                                    'message': 'Password reset for {} successful'.format(current_user.username)
                                    })
                 return make_response(response), 200
             else:
-                response = {"message": "Kindly provide correct email and old password"}
+                response = {"message": "Kindly provide correct email and password"}
                 return make_response(jsonify(response)), 404
         except Exception as e:
             response = {'message': str(e)}

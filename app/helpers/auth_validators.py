@@ -42,7 +42,7 @@ def user_login_validation(email, password):
         raise error
 
 
-def password_reset_validation(email, reset_password, secret):
+def password_reset_validation(reset_password, confirm_password):
     """Validators to check password Reset
     """
     error = None
@@ -53,8 +53,8 @@ def password_reset_validation(email, reset_password, secret):
     if not reset_password:
         error = ValidationError('Kindly provide a reset Password')
 
-    if not email:
-        error = ValidationError('Invalid user email')
+    if not confirm_password:
+         error = ValidationError('Kindly confirm your Password')
 
     if error:
         raise error
