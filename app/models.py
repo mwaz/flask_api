@@ -12,15 +12,14 @@ class User(db.Model):
 
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(256), nullable=False, unique=True)
-    username = db.Column(db.String(256))
-    secret_word = db.Column(db.String(256))
+    email = db.Column(db.String(100), nullable=False, unique=True)
+    username = db.Column(db.String(100))
     password = db.Column(db.String(256), nullable=False)
     # Delete all the categories that belong to a user if the owner is deleted from the db
     categories = db.relationship(
         'Categories', order_by='Categories.id', cascade="all, delete-orphan")
 
-    def __init__(self, email, password, username, secret_word):
+    def __init__(self, email, password, username):
         """
         constructor method to initialize class
         variables, username, password, secret_word and email
@@ -28,8 +27,7 @@ class User(db.Model):
         self.email = email
         self.password = Bcrypt().generate_password_hash(password).decode()
         self.username = username
-        self.secret_word = Bcrypt().generate_password_hash(secret_word).decode()
-
+        
     def password_check(self, password):
         """
         validates if stored password is the user
@@ -99,8 +97,8 @@ class Categories(db.Model):
 
     __tablename__ = 'categories'
 
-    id = db.Column(db.Integer, primary_key=True)  # primary key
-    category_name = db.Column(db.String(256), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    category_name = db.Column(db.String(100), nullable=False)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
@@ -146,9 +144,9 @@ class Recipes(db.Model):
     """Class to define the recipe categories table layout in the db"""
 
     __tablename__ = 'recipes'
-    id = db.Column(db.Integer, primary_key=True)  # primary key
-    recipe_name = db.Column(db.String(256), nullable=False)
-    recipe_ingredients = db.Column(db.String(256), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    recipe_name = db.Column(db.String(100), nullable=False)
+    recipe_ingredients = db.Column(db.String(100), nullable=False)
     recipe_methods = db.Column(db.String(256), nullable=False)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
@@ -198,7 +196,7 @@ class Sessions(db.Model):
     """
     __tablename__ = 'token_blacklist'
     id = db.Column(db.Integer, primary_key=True)
-    auth_token = db.Column(db.String(256), nullable=False, unique=True)
+    auth_token = db.Column(db.String(300), nullable=False, unique=True)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     def __init__(self, auth_token):
