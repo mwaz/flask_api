@@ -18,7 +18,7 @@ def make_app(config_name):
 
     app = FlaskAPI(__name__, instance_relative_config=True)
 
-    app.config.from_object(app_config['testing'])
+    app.config.from_object(app_config[config_name])
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
     app.config['SWAGGER'] = {"swagger": "2.0",
@@ -62,13 +62,15 @@ def make_app(config_name):
     app.add_url_rule(
         base_url + '/recipes/search/', view_func=recipe_search_view)
 
-    from app.auth.authentication import user_registration_view, user_login_view, user_password_reset_view, user_logout_view
+    from app.auth.authentication import user_registration_view, user_login_view, user_password_reset_view, user_logout_view, send_email_token_view
     app.add_url_rule(base_url + '/auth/register',
                      view_func=user_registration_view, methods=['POST'])
     app.add_url_rule(base_url + '/auth/login',
                      view_func=user_login_view, methods=['POST'])
     app.add_url_rule(base_url + '/auth/password-reset',
                      view_func=user_password_reset_view, )
+    app.add_url_rule(base_url + '/auth/password-reset-email',
+                     view_func=send_email_token_view, )
     app.add_url_rule(base_url + '/auth/logout', view_func=user_logout_view)
 
     @app.errorhandler(404)
