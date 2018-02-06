@@ -27,7 +27,7 @@ class TestAuth(unittest.TestCase):
                                             'password': 'testing_reset_p@ssword',
                                             'secret_word': 'TOP SECRET'
                                            }
-
+ 
         with self.app.app_context():
             db.session.close()
             db.drop_all()
@@ -51,18 +51,6 @@ class TestAuth(unittest.TestCase):
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'],
                          "Password should be more than six characters")
-
-    def test_to_check_for_null_secret_word_on_registration(self):
-        """Method to check if the secret word field is populated on user registration
-        """
-        user_register = self.client().post(
-            base_url + '/register',
-            data={'email': 'test@test.com', 'password': '32eq5646436rw',
-                  'username': 'New_User', 'secret_word': ''})
-        self.assertEqual(user_register.status_code, 400)
-        user_details = json.loads(user_register.data.decode())
-        self.assertEqual(user_details['message'],
-                         "Kindly provide a SECRET word")
 
     def test_to_check_invalid_email_pattern_on_registration(self):
         """Method to test that user cannot provide invalid email on registration
@@ -112,27 +100,18 @@ class TestAuth(unittest.TestCase):
         unauthorized_login = self.client().post(
             base_url + '/login', data=self.unathorized_user_details)
         self.assertEqual(unauthorized_login.status_code, 401)
-
-    def test_to_check_null_email_in_reset_passworp(self):
-        """Method to check that email needs to be provided while resetting a password
-        """
-        self.client().post(base_url + '/register', data=self.user_details)
-
-        password_reset = self.client().put(
-            base_url + '/password-reset',
-            data={'email': '', 'reset_password': 'testing_reset_p@ssword',
-                  'secret_word': 'TOP SECRET'})
-        self.assertEqual(password_reset.status_code, 400)
-        user_data = json.loads(password_reset.data.decode())
-        self.assertIn(user_data['message'], "Invalid user email")
-
+        
     def test_null_new_password_on_reset_password(self):
         """Method to test that a new password needs to be provided while resetting a password
         """
         self.client().post(base_url + '/register', data=self.user_details)
+        user_login = self.client().post(base_url + '/login', data=self.user_details)
+        self.access_token = json.loads(user_login.data.decode())[
+            'access_token']
         password_reset = self.client().put(base_url + '/password-reset',
-                                           data={'email': 'someone@gmail.com',
-                                                 'reset_password': '', 'secret_word': 'TOP SECRET'})
+                                           headers=dict(Authorization=self.access_token),
+                                           data={'password_reset': '',
+                                                 'confirm_password': 'TOP SECRET'})
         self.assertEqual(password_reset.status_code, 400)
         user_data = json.loads(password_reset.data.decode())
         self.assertIn(user_data['message'], "Kindly provide a reset Password")
@@ -141,11 +120,25 @@ class TestAuth(unittest.TestCase):
         """Method to check for successfully updated user password after a reset
         """
         self.client().post(base_url + '/register', data=self.user_details)
+        user_login = self.client().post(base_url + '/login', data=self.user_details)
+        self.access_token = json.loads(user_login.data.decode())[
+            'access_token']
         password_reset = self.client().put(
             base_url + '/password-reset',
-            data={'email': 'someone@gmail.com',
-                  'reset_password': 'new_password', 'secret_word': 'TOP SECRET'})
+            headers=dict(Authorization=self.access_token),
+            data={'reset_password': 'TOP SECRET',
+                  'confirm_password': 'TOP SECRET'})
         self.assertEqual(password_reset.status_code, 200)
+
+    def test_to_check_success_in_send_password_token(self):
+        """Method to check for successfully sent access token in email
+        """
+        self.client().post(base_url + '/register', data=self.user_details)
+         
+        password_reset = self.client().post(
+            base_url + '/password-reset-email',
+            data={'email': 'someone@gmail.com'})
+        self.assertEqual(password_reset.status_code, 201)
 
     def test_user_logout(self):
         """Method to test success when logging out a user
@@ -165,10 +158,14 @@ class TestAuth(unittest.TestCase):
         """Method to check for a handled error exception on password reset
         """
         self.client().post(base_url + '/register', data=self.user_details)
+        user_login = self.client().post(base_url + '/login', data=self.user_details)
+        self.access_token = json.loads(user_login.data.decode())[
+            'access_token']
 
         password_reset = self.client().put(base_url + '/password-reset',
-                                           data={'emailll': 'someone@gmail.com',
-                                                 'password': ''})
+                                           headers=dict(Authorization=self.access_token),
+                                           data={'reset_password': '',
+                                                'confirm_password': 'something here'})
         self.assertEqual(password_reset.status_code, 400)
 
     def test_error_exception_on_user_login(self):
@@ -197,14 +194,14 @@ class TestAuth(unittest.TestCase):
         """test method to check condition if email does not exist on password reset
         """
         self.client().post(base_url + '/register', data=self.user_details)
-        password_reset = self.client().put(
-            base_url + '/password-reset',
+        password_reset = self.client().post(
+            base_url + '/password-reset-email',
             data={'email': 'someonee@gmail.com',
-                  'reset_password': 'testing_p@ssword', 'secret_word': 'TOP SECRET'})
+                 })
         self.assertEqual(password_reset.status_code, 404)
         password_reset_data = json.loads(password_reset.data.decode())
         self.assertIn(
-            password_reset_data['message'], '"Kindly provide correct email and secret word"')
+            password_reset_data['message'], 'User does not exist')
 
     def test_to_check_invalid_route_on_api_endpoint(self):
         """test to check invalid route is provided on register
