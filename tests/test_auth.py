@@ -16,17 +16,12 @@ class TestAuth(unittest.TestCase):
         self.user_details = {'email': 'someone@gmail.com',
                              'password': 'testing_p@ssword',
                              'username': 'new_user',
-                             'secret_word': 'TOP SECRET'
                             }
         self.unathorized_user_details = {'email': 'uuser@unauthorized.com',
                                          'password': 'none_provided',
                                          'username': 'new_user',
-                                         'secret_word': 'TOP SECRET'
                                         }
-        self.password_reset_user_details = {'email': 'someone@gmail.com',
-                                            'password': 'testing_reset_p@ssword',
-                                            'secret_word': 'TOP SECRET'
-                                           }
+        
  
         with self.app.app_context():
             db.session.close()
@@ -46,7 +41,7 @@ class TestAuth(unittest.TestCase):
         """
         user_register = self.client().post(base_url + '/register',
                                            data={'email': 'n@n.com', 'password': '4324', 'username': 'new',
-                                                 'secret_word': 'secret'})
+                                                 })
         self.assertEqual(user_register.status_code, 400)
         user_details = json.loads(user_register.data.decode())
         self.assertEqual(user_details['message'],
@@ -57,7 +52,7 @@ class TestAuth(unittest.TestCase):
         """
         user_register = self.client().post(base_url + '/register',
                                            data={'email': 'test@test', 'password': '2324dsfscdsf',
-                                                 'username': 'User', 'secret_word': 'TOP SECRET'})
+                                                 'username': 'User'})
         self.assertEqual(user_register.status_code, 400)
 
     def test_error_exception_on_user_register(self):
@@ -133,11 +128,14 @@ class TestAuth(unittest.TestCase):
     def test_to_check_success_in_send_password_token(self):
         """Method to check for successfully sent access token in email
         """
-        self.client().post(base_url + '/register', data=self.user_details)
+        self.client().post(base_url + '/register', data={'email': 'hctheknights@gmail.com',
+                                                         'password': 'testing_p@ssword',
+                                                         'username': 'new_user',
+                                                        })
          
         password_reset = self.client().post(
             base_url + '/password-reset-email',
-            data={'email': 'someone@gmail.com'})
+            data={'email': 'hctheknights@gmail.com'})
         self.assertEqual(password_reset.status_code, 201)
 
     def test_user_logout(self):
