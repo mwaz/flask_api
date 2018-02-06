@@ -34,14 +34,7 @@ class User(db.Model):
          password by comparing the hashed and the provided password
          """
         return Bcrypt().check_password_hash(self.password, password)
-
-    def secret_word_check(self, secret_word):
-        """
-        validates if stored password is the user
-        password by comparing secret_word hashed and the provided secret word
-         """
-        return Bcrypt().check_password_hash(self.secret_word, secret_word)
-
+        
     def save(self):
         """
         The method saves a user to the database if all
