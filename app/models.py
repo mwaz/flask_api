@@ -47,7 +47,7 @@ class User(db.Model):
     def password_hash(password):
         """method to hash provided password
         """
-        password = Bcrypt().generate_password_hash(password)
+        password = Bcrypt().generate_password_hash(password).decode()
         return password
 
     @staticmethod
@@ -57,7 +57,7 @@ class User(db.Model):
         try:
             # set up a payload with an expiration time
             token_payload = {
-                'exp': datetime.utcnow() + timedelta(hours=4),
+                'exp': datetime.utcnow() + timedelta(hours=24),
                 'iat': datetime.utcnow(),
                 'usr': user_id
             }
@@ -139,8 +139,8 @@ class Recipes(db.Model):
     __tablename__ = 'recipes'
     id = db.Column(db.Integer, primary_key=True)
     recipe_name = db.Column(db.String(100), nullable=False)
-    recipe_ingredients = db.Column(db.String(100), nullable=False)
-    recipe_methods = db.Column(db.String(256), nullable=False)
+    recipe_ingredients = db.Column(db.Text, nullable=False)
+    recipe_methods = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),

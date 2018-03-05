@@ -28,6 +28,7 @@ def token_required(f):
             else:
                 current_user = User.query.filter_by(id=User.decode_token(access_token)).first()
         except Exception:
-            return {"message":"Token is expired"}
+            response = {"message":"Token is expired"}
+            return make_response(jsonify(response)), 401
         return f(current_user, *args, **kwargs)
     return decorated

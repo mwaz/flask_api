@@ -132,7 +132,7 @@ class Recipe(MethodView):
         """
 
         page = request.args.get('page', default=1, type=int)
-        limit = request.args.get('limit', default=10, type=int)
+        limit = request.args.get('limit', default=9, type=int)
 
         category_id = id
         recipes = Recipes.get_all_user_recipes(
@@ -373,7 +373,7 @@ class SearchRecipe(MethodView):
         """
         search = request.args.get('q', '')
         page = request.args.get('page', default=1, type=int)
-        limit = request.args.get('limit', default=10, type=int)
+        limit = request.args.get('limit', default=9, type=int)
 
         if search:
             recipes = Recipes.query.filter(Recipes.recipe_name.ilike(

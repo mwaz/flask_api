@@ -145,7 +145,7 @@ class Category(MethodView):
 
         page = request.args.get('page', default=1, type=int)
 
-        limit = request.args.get('limit', default=10, type=int)
+        limit = request.args.get('limit', default=9, type=int)
 
         categories = Categories.get_all_user_categories(
             current_user.id).paginate(page, limit, error_out=False)
@@ -431,7 +431,7 @@ class SearchCategory(MethodView):
 
         search = request.args.get('q', '')
         page = request.args.get('page', default=1, type=int)
-        limit = request.args.get('limit', default=10, type=int)
+        limit = request.args.get('limit', default=9, type=int)
 
         if search:
             categories = Categories.query.filter(Categories.category_name.ilike(

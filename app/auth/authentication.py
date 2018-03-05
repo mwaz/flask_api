@@ -136,7 +136,7 @@ class LoginUser(MethodView):
                 if access_token:
                     response = {
                         'message': 'Successful Login',
-                        'status': 'success',
+                        'user': user_details.username,
                         'access_token': access_token.decode()
                     }
                     return make_response(jsonify(response)), 200
@@ -220,7 +220,7 @@ class ResetUserPassword(MethodView):
           400:
             description: No password provided
           404:
-            description: "Kindly provide correct email and old password
+            description: Kindly provide correct email and old password
         """
 
         try:
@@ -237,6 +237,7 @@ class ResetUserPassword(MethodView):
                 user_details.save()
                 response = jsonify({'id': user_details.id,
                                     'email': user_details.email,
+                                    'password': res_password,
                                     'status': 'success',
                                     'message': 'Password reset for {} successful'.format(current_user.username)
                                    })
