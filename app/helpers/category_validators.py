@@ -17,7 +17,7 @@ def category_validation(category_name):
     if not category_name:
         error = ValidationError('category name not valid')
 
-    if not re.search(regex_pattern, category_name):
+    if not re.findall(regex_pattern, category_name):
         error = ValidationError('Category name is not valid')
 
     if error:
