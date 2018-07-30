@@ -121,7 +121,7 @@ class Categories(db.Model):
         This method fetches all the recipe categories
         that belong to a user.
         """
-        return Categories.query.filter_by(created_by=user_id)
+        return Categories.query.filter_by(created_by=user_id).order_by('id desc')
 
     def delete_categories(self):
         """This method deletes a recipe category belonging to a user"""
