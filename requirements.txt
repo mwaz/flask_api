@@ -48,7 +48,7 @@ python-dateutil==2.6.1
 python-editor==1.0.3
 pytz==2017.3
 requests==2.20.0
-PyYAML==5.1
+PyYAML==5.4
 six==1.11.0
 SQLAlchemy==1.1.14
 urllib3==1.24.2
